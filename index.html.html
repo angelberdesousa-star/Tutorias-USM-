@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorías FACES - USM</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-900 text-white p-2 rounded-lg font-bold text-xl tracking-wider">USM</div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none text-blue-950">Tutorías FACES</h1>
+                    <span class="text-xs text-gray-500">Campus La Florencia</span>
+                </div>
+            </div>
+            <div class="flex bg-gray-100 p-1 rounded-xl text-sm font-medium">
+                <button id="btn-mode-student" onclick="switchMode('student')" class="px-4 py-2 rounded-lg bg-white shadow-sm text-blue-900 font-semibold transition">
+                    <i class="fa-solid fa-user-graduate mr-1"></i> Modo Estudiante
+                </button>
+                <button id="btn-mode-tutor" onclick="switchMode('tutor')" class="px-4 py-2 rounded-lg text-gray-600 hover:text-blue-900 transition">
+                    <i class="fa-solid fa-chalkboard-user mr-1"></i> Modo Tutor
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MODO ESTUDIANTE -->
+    <main id="view-student" class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+        <!-- Hero Banner -->
+        <section class="gradient-bg text-white rounded-2xl p-6 md:p-8 mb-8 shadow-lg relative overflow-hidden">
+            <div class="relative z-10 max-w-2xl">
+                <span class="bg-blue-800 text-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">FACES - USM</span>
+                <h2 class="text-2xl md:text-4xl font-extrabold mt-2 mb-3">Refuerza tus conocimientos para los parciales</h2>
+                <p class="text-blue-100 text-sm md:text-base mb-6">Agenda tutorías presenciales dentro del campus o virtuales con los estudiantes con mejores promedios de la facultad.</p>
+                <div class="bg-white p-2 rounded-xl shadow-md flex flex-col md:flex-row gap-2 text-gray-800">
+                    <div class="flex-1 flex items-center px-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <i class="fa-solid fa-magnifying-glass text-gray-400 mr-2"></i>
+                        <input type="text" id="search-input" onkeyup="filterTutors()" placeholder="¿Qué materia buscas? (ej. Contabilidad, Cálculo...)" class="w-full bg-transparent py-2 text-sm focus:outline-none">
+                    </div>
+                    <select id="modality-filter" onchange="filterTutors()" class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none">
+                        <option value="all">Todas las modalidades</option>
+                        <option value="Presencial">Presencial (Campus USM)</option>
+                        <option value="Online">Online (Google Meet)</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filtros Rápidos -->
+        <section class="mb-6">
+            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Materias con alta demanda en FACES</h3>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="setCategoryFilter('all', event)" class="cat-btn active bg-blue-900 text-white px-4 py-1.5 rounded-full text-xs font-semibold">Todas</button>
+                <button onclick="setCategoryFilter('Contabilidad II', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Contabilidad II</button>
+                <button onclick="setCategoryFilter('Matemática III', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Matemática III</button>
+                <button onclick="setCategoryFilter('Estadística I', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Estadística I</button>
+                <button onclick="setCategoryFilter('Finanzas', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Finanzas</button>
+            </div>
+        </section>
+
+        <!-- Lista de Tutores -->
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Tutores Disponibles</h3>
+                <span id="tutor-count" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full">3 tutores</span>
+            </div>
+            <div id="tutors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- Mis Citas Agendadas -->
+        <section class="mt-12">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fa-solid fa-calendar-check text-blue-600 mr-2"></i> Mis Citas Agendadas
+            </h3>
+            <div id="student-appointments" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4">
+                <p class="text-gray-500 text-center py-6 text-sm">No tienes tutorías agendadas por el momento.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODO TUTOR -->
+    <main id="view-tutor" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="tab-requests" onclick="switchTutorTab('requests')" class="px-4 py-2 font-medium text-sm active-tab">
+                <i class="fa-solid fa-inbox mr-1"></i> Solicitudes Recibidas
+            </button>
+            <button id="tab-register" onclick="switchTutorTab('register')" class="px-4 py-2 font-medium text-sm text-gray-500 hover:text-gray-700">
+                <i class="fa-solid fa-user-plus mr-1"></i> Registrarse / Editar Perfil de Tutor
+            </button>
+        </div>
+
+        <div id="tutor-content-requests">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center">
+                    <div class="bg-blue-100 text-blue-600 p-3 rounded-lg mr-3"><i class="fa-solid fa-clock text-xl"></i></div>
+                    <div><div class="text-xs text-gray-500 font-bold uppercase">Pendientes</div><div id="stat-pending" class="text-2xl font-black text-gray-800">0</div></div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center">
+                    <div class="bg-green-100 text-green-600 p-3 rounded-lg mr-3"><i class="fa-solid fa-circle-check text-xl"></i></div>
+                    <div><div class="text-xs text-gray-500 font-bold uppercase">Confirmadas</div><div id="stat-confirmed" class="text-2xl font-black text-gray-800">0</div></div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center">
+                    <div class="bg-purple-100 text-purple-600 p-3 rounded-lg mr-3"><i class="fa-solid fa-dollar-sign text-xl"></i></div>
+                    <div><div class="text-xs text-gray-500 font-bold uppercase">Ganancias Est.</div><div id="stat-earnings" class="text-2xl font-black text-gray-800">\$0.00</div></div>
+                </div>
+            </div>
+            <div id="tutor-requests-list" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"></div>
+        </div>
+
+        <div id="tutor-content-register" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-lg font-bold text-gray-800 mb-1">Únete como Tutor en FACES USM</h3>
+            <form id="tutor-register-form" onsubmit="handleTutorRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo</label>
+                    <input type="text" required id="reg-name" placeholder="Ej. Carlos Mendoza" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Asignatura Principal</label>
+                        <select required id="reg-subject" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                            <option value="Contabilidad II">Contabilidad II</option>
+                            <option value="Matemática III">Matemática III</option>
+                            <option value="Estadística I">Estadística I</option>
+                            <option value="Finanzas">Finanzas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Semestre / Carrera</label>
+                        <input type="text" required id="reg-semester" placeholder="Ej. 8vo Semestre" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tarifa por Hora (\$)</label>
+                        <input type="number" required id="reg-price" min="1" step="0.5" placeholder="10" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Modalidad</label>
+                        <select id="reg-modality" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                            <option value="Presencial y Online">Presencial y Online</option>
+                            <option value="Presencial">Solo Presencial</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Biografía</label>
+                    <textarea id="reg-bio" rows="3" placeholder="Metodología..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-blue-800 transition shadow">Publicar Perfil</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- MODAL DE AGENDAMIENTO -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex items-center space-x-3 mb-4">
+                <img id="modal-tutor-img" src="" class="w-12 h-12 rounded-full object-cover border border-blue-900">
+                <div>
+                    <h3 id="modal-tutor-name" class="font-bold text-lg text-gray-900 leading-tight"></h3>
+                    <span id="modal-tutor-subject" class="text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded"></span>
+                </div>
+            </div>
+            <form onsubmit="confirmBooking(event)" class="space-y-4">
+                <input type="hidden" id="modal-tutor-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Fecha</label>
+                        <input type="date" required id="book-date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Hora</label>
+                        <input type="time" required id="book-time" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Modalidad</label>
+                    <select id="book-modality" onchange="toggleLocationField()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="Presencial">Presencial (Campus USM)</option>
+                        <option value="Online">Online (Google Meet)</option>
+                    </select>
+                </div>
+                <div id="location-container">
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Punto de Encuentro</label>
+                    <select id="book-location" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="Biblioteca Central FACES">Biblioteca Central FACES</option>
+                        <option value="Mesas de Estudio (Piso 2)">Mesas de Estudio (Piso 2)</option>
+                        <option value="Feria / Cafetería Principal">Feria / Cafetería Principal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tu Nombre</label>
+                    <input type="text" required id="book-student-name" placeholder="Tu nombre" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Método de Pago</label>
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <label class="border rounded-lg p-2 flex flex-col items-center cursor-pointer"><input type="radio" name="payment" value="Pago Móvil" checked class="mb-1"><span>Pago Móvil</span></label>
+                        <label class="border rounded-lg p-2 flex flex-col items-center cursor-pointer"><input type="radio" name="payment" value="Zelle" class="mb-1"><span>Zelle</span></label>
+                        <label class="border rounded-lg p-2 flex flex-col items-center cursor-pointer"><input type="radio" name="payment" value="Efectivo (\$)" class="mb-1"><span>Efectivo (\$)</span></label>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg flex justify-between items-center text-sm">
+                    <span class="text-gray-600 font-medium">Total:</span>
+                    <span id="modal-total-price" class="font-extrabold text-blue-900 text-lg">\$0.00</span>
+                </div>
+                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3 rounded-xl hover:bg-blue-800 transition shadow-lg">Confirmar Tutoría</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-gray-900 text-gray-400 py-6 mt-12 text-center text-xs">
+        <p>© 2026 Tutorías FACES - Universidad Santa María (Sede La Florencia)</p>
+    </footer>
+
+    <!-- JAVASCRIPT CON TUS FOTOS EXACTAS INCRUSTADAS -->
+    <script>
+        localStorage.clear(); // Limpia memoria anterior para forzar la carga correcta
+
+        const initialTutors = [
+            {
+                id: 1,
+                name: "Tia Paola Toro",
+                subject: "Contabilidad II",
+                semester: "7mo Semestre - Contaduría",
+                price: 12,
+                rating: 4.9,
+                reviews: 18,
+                modality: "Presencial y Online",
+                image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
+                bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo. Clases dinámicas y resolución de exámenes pasados de FACES."
+            },
+            {
+                id: 2,
+                name: "Elieser Cule bralarga",
+                subject: "Matemática III",
+                semester: "8vo Semestre - Economía",
+                price: 10,
+                rating: 5.0,
+                reviews: 24,
+                modality: "Presencial",
+                image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
+                bio: "Paso a paso para dominar derivadas avanzadas, integrales definidas e indefinidas y sus aplicaciones económicas."
+            },
+            {
+                id: 3,
+                name: "Desousa Madeira",
+                subject: "Estadística I",
+                semester: "6to Semestre - Administración",
+                price: 10,
+                rating: 4.8,
+                reviews: 15,
+                modality: "Presencial y Online",
+                image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
+                bio: "Explicación clara de tablas de frecuencia, probabilidades, distribuciones y análisis de datos enfocados a parciales."
+            }
+        ];
+
+        // Reemplazamos las imágenes simuladas con las fotos reales que enviaste convertidas directamente
+        initialTutors[0].image = "tutor1.jpg.jpeg";
+        initialTutors[1].image = "tutor2.jpg.jpeg";
+        initialTutors[2].image = "tutor3.jpg.jpeg";
+
+        let tutors = initialTutors;
+        let appointments = JSON.parse(localStorage.getItem('usm_appointments')) || [];
+        let activeCategory = 'all';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const dateInput = document.getElementById('book-date');
+            if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
+            renderTutors();
+            renderAppointments();
+            renderTutorRequests();
+        });
+
+        function switchMode(mode) {
+            const studentView = document.getElementById('view-student');
+            const tutorView = document.getElementById('view-tutor');
+            const btnStudent = document.getElementById('btn-mode-student');
+            const btnTutor = document.getElementById('btn-mode-tutor');
+
+            if (mode === 'student') {
+                studentView.classList.remove('hidden');
+                tutorView.classList.add('hidden');
+                btnStudent.className = "px-4 py-2 rounded-lg bg-white shadow-sm text-blue-900 font-semibold transition";
+                btnTutor.className = "px-4 py-2 rounded-lg text-gray-600 hover:text-blue-900 transition";
+            } else {
+                studentView.classList.add('hidden');
+                tutorView.classList.remove('hidden');
+                btnTutor.className = "px-4 py-2 rounded-lg bg-white shadow-sm text-blue-900 font-semibold transition";
+                btnStudent.className = "px-4 py-2 rounded-lg text-gray-600 hover:text-blue-900 transition";
+            }
+        }
+
+        function switchTutorTab(tab) {
+            const reqContent = document.getElementById('tutor-content-requests');
+            const regContent = document.getElementById('tutor-content-register');
+            const tabReq = document.getElementById('tab-requests');
+            const tabReg = document.getElementById('tab-register');
+
+            if (tab === 'requests') {
+                reqContent.classList.remove('hidden');
+                regContent.classList.add('hidden');
+                tabReq.className = "px-4 py-2 font-medium text-sm active-tab";
+                tabReg.className = "px-4 py-2 font-medium text-sm text-gray-500 hover:text-gray-700";
+            } else {
+                reqContent.classList.add('hidden');
+                regContent.classList.remove('hidden');
+                tabReg.className = "px-4 py-2 font-medium text-sm active-tab";
+                tabReq.className = "px-4 py-2 font-medium text-sm text-gray-500 hover:text-gray-700";
+            }
+        }
+
+        function renderTutors() {
+            const grid = document.getElementById('tutors-grid');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            const modalityVal = document.getElementById('modality-filter').value;
+
+            const filtered = tutors.filter(t => {
+                const matchesSearch = t.name.toLowerCase().includes(searchVal) || t.subject.toLowerCase().includes(searchVal);
+                const matchesModality = modalityVal === 'all' || t.modality.includes(modalityVal);
+                const matchesCategory = activeCategory === 'all' || t.subject.toLowerCase() === activeCategory.toLowerCase();
+                return matchesSearch && matchesModality && matchesCategory;
+            });
+
+            document.getElementById('tutor-count').innerText = `${filtered.length} tutor${filtered.length === 1 ? '' : 'es'}`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300"><p class="text-gray-500 text-sm">No se encontraron tutores.</p></div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(t => `
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col justify-between">
+                    <div class="p-5">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="${t.image}" alt="${t.name}" class="w-14 h-14 rounded-full object-cover border-2 border-blue-900 shadow-sm">
+                                <div>
+                                    <h4 class="font-bold text-gray-900 leading-tight">${t.name}</h4>
+                                    <span class="text-xs text-gray-500">${t.semester}</span>
+                                </div>
+                            </div>
+                            <span class="bg-blue-50 text-blue-900 font-extrabold text-sm px-2.5 py-1 rounded-lg border border-blue-100">$${t.price}/h</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full mb-2">${t.subject}</span>
+                            <p class="text-xs text-gray-600 line-clamp-3 leading-relaxed">${t.bio}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border-t border-gray-100">
+                        <button onclick="openBookingModal(${t.id})" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center">
+                            <i class="fa-solid fa-calendar-plus mr-1.5"></i> Agendar Tutoría
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterTutors() { renderTutors(); }
+
+        function setCategoryFilter(cat, e) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-900', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            if(e && e.target) {
+                e.target.classList.remove('bg-white', 'text-gray-700');
+                e.target.classList.add('bg-blue-900', 'text-white');
+            }
+            renderTutors();
+        }
+
+        function openBookingModal(tutorId) {
+            const tutor = tutors.find(t => t.id === tutorId);
+            if (!tutor) return;
+            document.getElementById('modal-tutor-id').value = tutor.id;
+            document.getElementById('modal-tutor-name').innerText = tutor.name;
+            document.getElementById('modal-tutor-subject').innerText = tutor.subject;
+            document.getElementById('modal-tutor-img').src = tutor.image;
+            document.getElementById('modal-total-price').innerText = `$${tutor.price}.00`;
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+
+        function closeBookingModal() { document.getElementById('booking-modal').classList.add('hidden'); }
+
+        function toggleLocationField() {
+            const modality = document.getElementById('book-modality').value;
+            const container = document.getElementById('location-container');
+            container.style.display = modality === 'Online' ? 'none' : 'block';
+        }
+
+        function confirmBooking(e) {
+            e.preventDefault();
+            const tutorId = parseInt(document.getElementById('modal-tutor-id').value);
+            const tutor = tutors.find(t => t.id === tutorId);
+            const modality = document.getElementById('book-modality').value;
+            const newAppointment = {
+                id: Date.now(),
+                tutorName: tutor.name,
+                subject: tutor.subject,
+                price: tutor.price,
+                studentName: document.getElementById('book-student-name').value,
+                date: document.getElementById('book-date').value,
+                time: document.getElementById('book-time').value,
+                modality: modality,
+                location: modality === 'Online' ? 'Google Meet' : document.getElementById('book-location').value,
+                status: 'Pendiente'
+            };
+            appointments.push(newAppointment);
+            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
+            closeBookingModal();
+            renderAppointments();
+            renderTutorRequests();
+            alert('¡Solicitud enviada con éxito!');
+        }
+
+        function renderAppointments() {
+            const container = document.getElementById('student-appointments');
+            if (appointments.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No tienes tutorías agendadas por el momento.</p>`;
+                return;
+            }
+            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center"><div><span class="font-bold text-sm">\${a.subject}</span><span class="text-xs ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">\${a.status}</span><div class="text-xs text-gray-600 mt-1">Tutor: ${a.tutorName} \vert{}${a.date} a las ${a.time}</div></div><span class="font-bold text-blue-900 text-sm">$\${a.price}.00</span></div>`).join('')}</div>`;
+        }
+
+        function renderTutorRequests() {
+            const container = document.getElementById('tutor-requests-list');
+            const pending = appointments.filter(a => a.status === 'Pendiente').length;
+            const confirmed = appointments.filter(a => a.status === 'Confirmada').length;
+            const earnings = appointments.filter(a => a.status === 'Confirmada').reduce((sum, a) => sum + a.price, 0);
+
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-confirmed').innerText = confirmed;
+            document.getElementById('stat-earnings').innerText = `$${earnings}.00`;
+
+            if (appointments.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No has recibido solicitudes aún.</p>`;
+                return;
+            }
+            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-white flex justify-between items-center"><div><span class="font-bold text-sm">\${a.studentName}</span><span class="text-xs bg-blue-100 text-blue-800 ml-2 px-2 py-0.5 rounded">\${a.subject}</span><div class="text-xs text-gray-600 mt-1">\${a.date} @ ${a.time}</div></div><div>${a.status === 'Pendiente' ? `<button onclick="updateStatus(${a.id}, 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg mr-1">Aceptar</button><button onclick="updateStatus(${a.id}, 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1 rounded-lg bg-green-100 text-green-800">${a.status}</span>`}</div></div>`).join('')}</div>`;
+        }
+
+        function updateStatus(id, newStatus) {
+            appointments = appointments.map(a => a.id === id ? {...a, status: newStatus} : a);
+            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
+            renderAppointments();
+            renderTutorRequests();
+        }
+
+        function handleTutorRegister(e) {
+            e.preventDefault();
+            const newTutor = {
+                id: Date.now(),
+                name: document.getElementById('reg-name').value,
+                subject: document.getElementById('reg-subject').value,
+                semester: document.getElementById('reg-semester').value,
+                price: parseFloat(document.getElementById('reg-price').value),
+                rating: 5.0,
+                reviews: 1,
+                modality: document.getElementById('reg-modality').value,
+                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+                bio: document.getElementById('reg-bio').value || "Estudiante de apoyo."
+            };
+            tutors.unshift(newTutor);
+            renderTutors();
+            document.getElementById('tutor-register-form').reset();
+            alert('¡Perfil publicado con éxito!');
+            switchTutorTab('requests');
+            switchMode('student');
+        }
+    </script>
+</body>
+</html>
