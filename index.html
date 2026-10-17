@@ -230,7 +230,7 @@
     <script>
         localStorage.clear(); // Limpia memoria anterior para forzar la carga correcta
 
-        const initialTutors = [
+       const initialTutors = [
             {
                 id: 1,
                 name: "Tia Paola Toro",
@@ -240,7 +240,7 @@
                 rating: 4.9,
                 reviews: 18,
                 modality: "Presencial y Online",
-                image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
+                image: "tutor1.jpg",
                 bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo. Clases dinámicas y resolución de exámenes pasados de FACES."
             },
             {
@@ -252,7 +252,7 @@
                 rating: 5.0,
                 reviews: 24,
                 modality: "Presencial",
-                image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
+                image: "tutor2.jpg",
                 bio: "Paso a paso para dominar derivadas avanzadas, integrales definidas e indefinidas y sus aplicaciones económicas."
             },
             {
@@ -264,15 +264,13 @@
                 rating: 4.8,
                 reviews: 15,
                 modality: "Presencial y Online",
-                image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
+                image: "tutor3.jpg",
                 bio: "Explicación clara de tablas de frecuencia, probabilidades, distribuciones y análisis de datos enfocados a parciales."
             }
         ];
 
         // Reemplazamos las imágenes simuladas con las fotos reales que enviaste convertidas directamente
-        initialTutors[0].image = "tutor1.jpg.jpeg";
-        initialTutors[1].image = "tutor2.jpg.jpeg";
-        initialTutors[2].image = "tutor3.jpg.jpeg";
+
 
         let tutors = initialTutors;
         let appointments = JSON.parse(localStorage.getItem('usm_appointments')) || [];
