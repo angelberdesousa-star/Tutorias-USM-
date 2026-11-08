@@ -643,33 +643,53 @@
         let selectedRole = 'estudiante';
         let currentUser = null;
 
-        // Escuchar tutores en tiempo real desde Firestore
+        // Escuchar tutores en tiempo real desde Firestore con respaldo por defecto
         onSnapshot(collection(db, "tutors"), (snapshot) => {
             const fetchedTutors = [];
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                if(data.subject) { // Solo agregamos si completó el formulario de tutor
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                if (data.name) {
                     fetchedTutors.push({
-                        id: doc.id,
-                        name: data.name || "Tutor USM",
-                        subject: data.subject || "General",
+                        id: docSnap.id,
+                        name: data.name,
+                        subject: data.subject || "Contabilidad II",
                         semester: data.semester || "FACES",
                         price: data.price || 10,
                         rating: data.rating || 5.0,
                         reviews: data.reviews || 1,
                         modality: data.modality || "Presencial y Online",
-                        days: data.days || "Días a convenir",
-                        hours: data.hours || "Horario flexible",
+                        days: data.days || "Consultar",
+                        hours: data.hours || "Horario a convenir",
                         image: data.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
                         bio: data.bio || "Tutor disponible."
                     });
                 }
             });
-            tutors = fetchedTutors;
+
+            if (fetchedTutors.length === 0) {
+                tutors = [
+                    {
+                        id: "1",
+                        name: "Tia Paola Toro",
+                        subject: "Contabilidad II",
+                        semester: "7mo Semestre - Contaduría",
+                        price: 12,
+                        rating: 4.9,
+                        reviews: 18,
+                        modality: "Presencial y Online",
+                        days: "Lunes a Miércoles",
+                        hours: "8:00 AM - 12:00 PM",
+                        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
+                        bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo."
+                    }
+                ];
+            } else {
+                tutors = fetchedTutors;
+            }
+
             renderTutors();
         });
 
-        // Registrar / Editar perfil de tutor en Firestore
         window.handleTutorRegister = async function(e) {
             e.preventDefault();
             if (!currentUser) {
@@ -688,7 +708,7 @@
                 days: document.getElementById('reg-days').value,
                 hours: document.getElementById('reg-hours').value,
                 bio: document.getElementById('reg-bio').value || "Estudiante de apoyo.",
-                photo: currentUser.photoURL,
+                photo: currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
                 email: currentUser.email,
                 role: 'tutor',
                 rating: 5.0,
