@@ -61,7 +61,7 @@
                     <select id="modality-filter" onchange="filterTutors()" class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none">
                         <option value="all">Todas las modalidades</option>
                         <option value="Presencial">Presencial (Campus USM)</option>
-                        <option value="Online">Online (Google Meet)</option>
+                        <option value="Online">Online (Google Meet / Classroom)</option>
                     </select>
                 </div>
             </div>
@@ -88,10 +88,10 @@
             <div id="tutors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- Mis Citas Agendadas -->
+        <!-- Mis Citas Agendadas y Reseñas -->
         <section class="mt-12">
             <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fa-solid fa-calendar-check text-blue-600 mr-2"></i> Mis Citas Agendadas
+                <i class="fa-solid fa-calendar-check text-blue-600 mr-2"></i> Mis Citas Agendadas y Calificaciones
             </h3>
             <div id="student-appointments" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4">
                 <p class="text-gray-500 text-center py-6 text-sm">No tienes tutorías agendadas por el momento.</p>
@@ -238,6 +238,57 @@
                     <span id="modal-total-price" class="font-extrabold text-blue-900 text-lg">$0.00</span>
                 </div>
                 <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3 rounded-xl hover:bg-blue-800 transition shadow-lg">Confirmar Tutoría</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE CHAT INTERNO EN TIEMPO REAL -->
+    <div id="chat-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[500px]">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <div>
+                    <h3 id="chat-title" class="font-bold text-base text-gray-900">Chat de Tutoría</h3>
+                    <span id="chat-subtitle" class="text-xs text-gray-500"></span>
+                </div>
+                <button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <!-- Cuerpo de mensajes -->
+            <div id="chat-messages" class="flex-grow overflow-y-auto space-y-3 pr-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <p class="text-center text-xs text-gray-400 py-4">Inicia la conversación para coordinar los detalles de tu clase.</p>
+            </div>
+            <!-- Formulario de envío -->
+            <form onsubmit="sendMessage(event)" class="mt-3 flex gap-2">
+                <input type="hidden" id="chat-appointment-id">
+                <input type="text" id="chat-input" required placeholder="Escribe un mensaje..." class="flex-grow border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                <button type="submit" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-800 transition"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESEÑA / CALIFICACIÓN -->
+    <div id="review-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-bold text-lg text-gray-900 mb-2">Califica tu Tutoría</h3>
+            <p id="review-tutor-subtitle" class="text-xs text-gray-500 mb-4"></p>
+            <form onsubmit="submitReview(event)" class="space-y-4">
+                <input type="hidden" id="review-appointment-id">
+                <input type="hidden" id="review-tutor-id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Calificación (Estrellas)</label>
+                    <select id="review-rating" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="5">⭐⭐⭐⭐⭐ (5 - Excelente)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 - Muy bueno)</option>
+                        <option value="3">⭐⭐⭐ (3 - Bueno)</option>
+                        <option value="2">⭐⭐ (2 - Regular)</option>
+                        <option value="1">⭐ (1 - Malo)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Comentario / Reseña</label>
+                    <textarea id="review-comment" required rows="3" placeholder="Explica qué tal te pareció la clase..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-xl hover:bg-blue-800 transition shadow">Enviar Reseña</button>
             </form>
         </div>
     </div>
@@ -401,6 +452,7 @@
                                 <div>
                                     <h4 class="font-bold text-gray-900 leading-tight">${t.name}</h4>
                                     <span class="text-xs text-gray-500">${t.semester}</span>
+                                    <div class="text-xs text-amber-600 font-bold mt-0.5"><i class="fa-solid fa-star"></i> ${t.rating} (${t.reviews} reseñas)</div>
                                 </div>
                             </div>
                             <span class="bg-blue-50 text-blue-900 font-extrabold text-sm px-2.5 py-1 rounded-lg border border-blue-100">$${t.price}/h</span>
@@ -464,6 +516,7 @@
             const modality = document.getElementById('book-modality').value;
             const newAppointment = {
                 id: Date.now(),
+                tutorId: tutor.id,
                 tutorName: tutor.name,
                 subject: tutor.subject,
                 price: tutor.price,
@@ -472,14 +525,99 @@
                 time: document.getElementById('book-time').value,
                 modality: modality,
                 location: modality === 'Online' ? 'Google Meet / Classroom' : document.getElementById('book-location').value,
-                status: 'Pendiente'
+                status: 'Pendiente',
+                review: null,
+                messages: []
             };
             appointments.push(newAppointment);
             localStorage.setItem('usm_appointments', JSON.stringify(appointments));
             closeBookingModal();
             renderAppointments();
             renderTutorRequests();
-            alert('¡Solicitud enviada con éxito! El tutor la verá en su panel.');
+            alert('¡Solicitud enviada con éxito!');
+        }
+
+        // FUNCIONES DE CHAT INTERNO
+        function openChatModal(appointmentId) {
+            document.getElementById('chat-appointment-id').value = appointmentId;
+            const appt = appointments.find(a => a.id === appointmentId);
+            if(!appt) return;
+
+            document.getElementById('chat-title').innerText = `Chat: ${appt.subject}`;
+            document.getElementById('chat-subtitle').innerText = `Estudiante: ${appt.studentName} | Tutor: ${appt.tutorName}`;
+            renderMessages(appt);
+            document.getElementById('chat-modal').classList.remove('hidden');
+        }
+
+        function closeChatModal() {
+            document.getElementById('chat-modal').classList.add('hidden');
+        }
+
+        function renderMessages(appt) {
+            const container = document.getElementById('chat-messages');
+            if(!appt.messages || appt.messages.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-4">No hay mensajes aún. ¡Escribe el primero!</p>`;
+                return;
+            }
+            container.innerHTML = appt.messages.map(m => `
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-gray-500">${m.sender}</span>
+                    <div class="bg-blue-50 border border-blue-100 text-gray-800 text-xs p-2.5 rounded-xl max-w-[85%] mt-0.5 shadow-sm">${m.text}</div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            const appointmentId = parseInt(document.getElementById('chat-appointment-id').value);
+            const text = document.getElementById('chat-input').value;
+
+            appointments = appointments.map(a => {
+                if(a.id === appointmentId) {
+                    const updatedMessages = [...(a.messages || []), { sender: 'Usuario', text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
+                    return {...a, messages: updatedMessages};
+                }
+                return a;
+            });
+
+            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
+            document.getElementById('chat-input').value = '';
+            const appt = appointments.find(a => a.id === appointmentId);
+            renderMessages(appt);
+        }
+
+        function openReviewModal(appointmentId, tutorId, tutorName) {
+            document.getElementById('review-appointment-id').value = appointmentId;
+            document.getElementById('review-tutor-id').value = tutorId;
+            document.getElementById('review-tutor-subtitle').innerText = `Calificando a ${tutorName}`;
+            document.getElementById('review-modal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.add('hidden');
+        }
+
+        function submitReview(e) {
+            e.preventDefault();
+            const appointmentId = parseInt(document.getElementById('review-appointment-id').value);
+            const tutorId = parseInt(document.getElementById('review-tutor-id').value);
+            const rating = parseInt(document.getElementById('review-rating').value);
+            const comment = document.getElementById('review-comment').value;
+
+            appointments = appointments.map(a => a.id === appointmentId ? {...a, review: {rating, comment}} : a);
+            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
+
+            const tutor = tutors.find(t => t.id === tutorId);
+            if(tutor) {
+                tutor.reviews += 1;
+                tutor.rating = parseFloat(((tutor.rating * (tutor.reviews - 1) + rating) / tutor.reviews).toFixed(1));
+            }
+
+            closeReviewModal();
+            renderAppointments();
+            renderTutors();
+            alert('¡Gracias por dejar tu reseña!');
         }
 
         function renderAppointments() {
@@ -488,7 +626,21 @@
                 container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No tienes tutorías agendadas por el momento.</p>`;
                 return;
             }
-            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center flex-wrap gap-2"><div><span class="font-bold text-sm">${a.subject}</span><span class="text-xs ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">${a.status}</span><div class="text-xs text-gray-600 mt-1">Tutor: ${a.tutorName} | ${a.date} a las ${a.time} (${a.modality})</div></div><span class="font-bold text-blue-900 text-sm">$${a.price}.00</span></div>`).join('')}</div>`;
+            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `
+                <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <span class="font-bold text-sm">${a.subject}</span>
+                        <span class="text-xs ml-2 px-2 py-0.5 rounded-full ${a.status === 'Confirmada' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${a.status}</span>
+                        <div class="text-xs text-gray-600 mt-1">Tutor: ${a.tutorName} | ${a.date} a las ${a.time} (${a.modality})</div>
+                        ${a.review ? `<div class="text-xs text-amber-600 font-semibold mt-1"><i class="fa-solid fa-star"></i> Calificación: ${a.review.rating}/5 - "${a.review.comment}"</div>` : ''}
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-blue-900 text-sm">$${a.price}.00</span>
+                        <button onclick="openChatModal(${a.id})" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Abrir Chat</button>
+                        ${a.status === 'Confirmada' && !a.review ? `<button onclick="openReviewModal(${a.id}, ${a.tutorId}, '${a.tutorName}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800">Calificar</button>` : ''}
+                    </div>
+                </div>
+            `).join('')}</div>`;
         }
 
         function renderTutorRequests() {
@@ -505,7 +657,19 @@
                 container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No has recibido solicitudes aún.</p>`;
                 return;
             }
-            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-white flex justify-between items-center flex-wrap gap-2"><div><span class="font-bold text-sm">${a.studentName}</span><span class="text-xs bg-blue-100 text-blue-800 ml-2 px-2 py-0.5 rounded">${a.subject}</span><div class="text-xs text-gray-600 mt-1">${a.date} @ ${a.time} - ${a.modality}</div></div><div class="flex gap-2">${a.status === 'Pendiente' ? `<button onclick="updateStatus(${a.id}, 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Aceptar</button><button onclick="updateStatus(${a.id}, 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-100 text-green-800">${a.status}</span>`}</div></div>`).join('')}</div>`;
+            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `
+                <div class="p-4 rounded-xl border border-gray-200 bg-white flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <span class="font-bold text-sm">${a.studentName}</span>
+                        <span class="text-xs bg-blue-100 text-blue-800 ml-2 px-2 py-0.5 rounded">${a.subject}</span>
+                        <div class="text-xs text-gray-600 mt-1">${a.date} @ ${a.time} - ${a.modality}</div>
+                    </div>
+                    <div class="flex gap-2 items-center flex-wrap">
+                        <button onclick="openChatModal(${a.id})" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Chat</button>
+                        ${a.status === 'Pendiente' ? `<button onclick="updateStatus(${a.id}, 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Aceptar</button><button onclick="updateStatus(${a.id}, 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-100 text-green-800">${a.status}</span>`}
+                    </div>
+                </div>
+            `).join('')}</div>`;
         }
 
         function updateStatus(id, newStatus) {
@@ -540,7 +704,7 @@
         }
     </script>
 
-    <!-- INTEGRADOR FIREBASE CON COLECCIONES SEPARADAS (STUDENTS / TUTORS) -->
+    <!-- INTEGRADOR FIREBASE CON BLOQUEO DE ROL CRUZADO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -591,7 +755,17 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 
-                // Determinamos la colección según el rol seleccionado: 'students' o 'tutors'
+                const oppositeCollection = selectedRole === 'estudiante' ? 'tutors' : 'students';
+                const oppositeRef = doc(db, oppositeCollection, user.uid);
+                const oppositeSnap = await getDoc(oppositeRef);
+
+                if (oppositeSnap.exists()) {
+                    alert(`Esta cuenta ya está registrada como ${selectedRole === 'estudiante' ? 'Tutor' : 'Estudiante'}. Debes cerrar sesión o usar otra cuenta para ingresar con este rol.`);
+                    await signOut(auth);
+                    closeAuthModal();
+                    return;
+                }
+
                 const collectionName = selectedRole === 'estudiante' ? 'students' : 'tutors';
                 const userRef = doc(db, collectionName, user.uid);
                 const userSnap = await getDoc(userRef);
