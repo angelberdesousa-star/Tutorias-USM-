@@ -125,7 +125,9 @@
                     <div><div class="text-xs text-gray-500 font-bold uppercase">Ganancias Est.</div><div id="stat-earnings" class="text-2xl font-black text-gray-800">$0.00</div></div>
                 </div>
             </div>
-            <div id="tutor-requests-list" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"></div>
+            <div id="tutor-requests-list" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <p class="text-gray-500 text-center py-6 text-sm">Cargando solicitudes...</p>
+            </div>
         </div>
 
         <div id="tutor-content-register" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-200">
@@ -194,8 +196,9 @@
                     <div id="modal-tutor-availability" class="text-xs text-emerald-700 font-medium mt-1"><i class="fa-regular fa-clock mr-1"></i><span></span></div>
                 </div>
             </div>
-            <form onsubmit="confirmBooking(event)" class="space-y-4">
+            <form id="booking-form" onsubmit="confirmBooking(event)" class="space-y-4">
                 <input type="hidden" id="modal-tutor-id">
+                <input type="hidden" id="modal-tutor-uid">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Fecha</label>
@@ -325,17 +328,15 @@
         <p>© 2026 Tutorías FACES - Universidad Santa María (Sede La Florencia)</p>
     </footer>
 
-    <!-- LOGICA DE INTERFAZ Y EVENTOS LOCALES -->
+    <!-- LOGICA DE INTERFAZ Y RENDERIZADO LOCAL -->
     <script>
         let tutors = [];
-        let appointments = JSON.parse(localStorage.getItem('usm_appointments')) || [];
+        let appointments = [];
         let activeCategory = 'all';
 
         document.addEventListener("DOMContentLoaded", () => {
             const dateInput = document.getElementById('book-date');
             if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
-            renderAppointments();
-            renderTutorRequests();
         });
 
         function switchMode(mode) {
@@ -445,6 +446,7 @@
             const tutor = tutors.find(t => String(t.id) === String(tutorId));
             if (!tutor) return;
             document.getElementById('modal-tutor-id').value = tutor.id;
+            document.getElementById('modal-tutor-uid').value = tutor.uid || tutor.id;
             document.getElementById('modal-tutor-name').innerText = tutor.name;
             document.getElementById('modal-tutor-subject').innerText = tutor.subject;
             document.getElementById('modal-tutor-img').src = tutor.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
@@ -461,37 +463,9 @@
             container.style.display = modality === 'Online' ? 'none' : 'block';
         }
 
-        function confirmBooking(e) {
-            e.preventDefault();
-            const tutorId = document.getElementById('modal-tutor-id').value;
-            const tutor = tutors.find(t => String(t.id) === String(tutorId));
-            const modality = document.getElementById('book-modality').value;
-            const newAppointment = {
-                id: Date.now(),
-                tutorId: tutor ? tutor.id : tutorId,
-                tutorName: tutor ? tutor.name : 'Tutor',
-                subject: tutor ? tutor.subject : 'Tutoría',
-                price: tutor ? tutor.price : 10,
-                studentName: document.getElementById('book-student-name').value,
-                date: document.getElementById('book-date').value,
-                time: document.getElementById('book-time').value,
-                modality: modality,
-                location: modality === 'Online' ? 'Google Meet / Classroom' : document.getElementById('book-location').value,
-                status: 'Pendiente',
-                review: null,
-                messages: []
-            };
-            appointments.push(newAppointment);
-            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
-            closeBookingModal();
-            renderAppointments();
-            renderTutorRequests();
-            alert('¡Solicitud enviada con éxito!');
-        }
-
         function openChatModal(appointmentId) {
             document.getElementById('chat-appointment-id').value = appointmentId;
-            const appt = appointments.find(a => a.id === appointmentId);
+            const appt = appointments.find(a => String(a.id) === String(appointmentId));
             if(!appt) return;
 
             document.getElementById('chat-title').innerText = `Chat: ${appt.subject}`;
@@ -517,25 +491,6 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function sendMessage(e) {
-            e.preventDefault();
-            const appointmentId = parseInt(document.getElementById('chat-appointment-id').value);
-            const text = document.getElementById('chat-input').value;
-
-            appointments = appointments.map(a => {
-                if(a.id === appointmentId) {
-                    const updatedMessages = [...(a.messages || []), { sender: 'Usuario', text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
-                    return {...a, messages: updatedMessages};
-                }
-                return a;
-            });
-
-            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
-            document.getElementById('chat-input').value = '';
-            const appt = appointments.find(a => a.id === appointmentId);
-            renderMessages(appt);
-        }
-
         function openReviewModal(appointmentId, tutorId, tutorName) {
             document.getElementById('review-appointment-id').value = appointmentId;
             document.getElementById('review-tutor-id').value = tutorId;
@@ -544,21 +499,6 @@
         }
 
         function closeReviewModal() { document.getElementById('review-modal').classList.add('hidden'); }
-
-        function submitReview(e) {
-            e.preventDefault();
-            const appointmentId = parseInt(document.getElementById('review-appointment-id').value);
-            const tutorId = document.getElementById('review-tutor-id').value;
-            const rating = parseInt(document.getElementById('review-rating').value);
-            const comment = document.getElementById('review-comment').value;
-
-            appointments = appointments.map(a => a.id === appointmentId ? {...a, review: {rating, comment}} : a);
-            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
-
-            closeReviewModal();
-            renderAppointments();
-            alert('¡Gracias por dejar tu reseña!');
-        }
 
         function renderAppointments() {
             const container = document.getElementById('student-appointments');
@@ -570,14 +510,14 @@
                 <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center flex-wrap gap-2">
                     <div>
                         <span class="font-bold text-sm">${a.subject}</span>
-                        <span class="text-xs ml-2 px-2 py-0.5 rounded-full ${a.status === 'Confirmada' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${a.status}</span>
+                        <span class="text-xs ml-2 px-2 py-0.5 rounded-full ${a.status === 'Confirmada' ? 'bg-green-100 text-green-800' : (a.status === 'Rechazada' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800')}">${a.status}</span>
                         <div class="text-xs text-gray-600 mt-1">Tutor: ${a.tutorName} | ${a.date} a las ${a.time} (${a.modality})</div>
                         ${a.review ? `<div class="text-xs text-amber-600 font-semibold mt-1"><i class="fa-solid fa-star"></i> Calificación: ${a.review.rating}/5 - "${a.review.comment}"</div>` : ''}
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
                         <span class="font-bold text-blue-900 text-sm">$${a.price}.00</span>
-                        <button onclick="openChatModal(${a.id})" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Abrir Chat</button>
-                        ${a.status === 'Confirmada' && !a.review ? `<button onclick="openReviewModal(${a.id}, '${a.tutorId}', '${a.tutorName}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800">Calificar</button>` : ''}
+                        <button onclick="openChatModal('${a.id}')" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Abrir Chat</button>
+                        ${a.status === 'Confirmada' && !a.review ? `<button onclick="openReviewModal('${a.id}', '${a.tutorId}', '${a.tutorName}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800">Calificar</button>` : ''}
                     </div>
                 </div>
             `).join('')}</div>`;
@@ -587,7 +527,7 @@
             const container = document.getElementById('tutor-requests-list');
             const pending = appointments.filter(a => a.status === 'Pendiente').length;
             const confirmed = appointments.filter(a => a.status === 'Confirmada').length;
-            const earnings = appointments.filter(a => a.status === 'Confirmada').reduce((sum, a) => sum + a.price, 0);
+            const earnings = appointments.filter(a => a.status === 'Confirmada').reduce((sum, a) => sum + (a.price || 0), 0);
 
             document.getElementById('stat-pending').innerText = pending;
             document.getElementById('stat-confirmed').innerText = confirmed;
@@ -602,29 +542,22 @@
                     <div>
                         <span class="font-bold text-sm">${a.studentName}</span>
                         <span class="text-xs bg-blue-100 text-blue-800 ml-2 px-2 py-0.5 rounded">${a.subject}</span>
-                        <div class="text-xs text-gray-600 mt-1">${a.date} @ ${a.time} - ${a.modality}</div>
+                        <div class="text-xs text-gray-600 mt-1">${a.date} @ ${a.time} - ${a.modality} (${a.location || 'Online'})</div>
                     </div>
                     <div class="flex gap-2 items-center flex-wrap">
-                        <button onclick="openChatModal(${a.id})" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Chat</button>
-                        ${a.status === 'Pendiente' ? `<button onclick="updateStatus(${a.id}, 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Aceptar</button><button onclick="updateStatus(${a.id}, 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-100 text-green-800">${a.status}</span>`}
+                        <button onclick="openChatModal('${a.id}')" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Chat</button>
+                        ${a.status === 'Pendiente' ? `<button onclick="updateAppointmentStatus('${a.id}', 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Aceptar</button><button onclick="updateAppointmentStatus('${a.id}', 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1.5 rounded-lg ${a.status === 'Confirmada' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${a.status}</span>`}
                     </div>
                 </div>
             `).join('')}</div>`;
         }
-
-        function updateStatus(id, newStatus) {
-            appointments = appointments.map(a => a.id === id ? {...a, status: newStatus} : a);
-            localStorage.setItem('usm_appointments', JSON.stringify(appointments));
-            renderAppointments();
-            renderTutorRequests();
-        }
     </script>
 
-    <!-- INTEGRADOR FIREBASE Y CONSULTA REALTIME DE TUTORES -->
+    <!-- INTEGRADOR FIREBASE Y SINCRONIZACIÓN EN TIEMPO REAL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDqmEKtiTD3z2bRFuIZKvJY8pzt2Kls9Kg",
@@ -643,7 +576,7 @@
         let selectedRole = 'estudiante';
         let currentUser = null;
 
-        // Escuchar tutores en tiempo real desde Firestore con respaldo por defecto
+        // Escuchar tutores en tiempo real
         onSnapshot(collection(db, "tutors"), (snapshot) => {
             const fetchedTutors = [];
             snapshot.forEach((docSnap) => {
@@ -651,6 +584,7 @@
                 if (data.name) {
                     fetchedTutors.push({
                         id: docSnap.id,
+                        uid: data.uid || docSnap.id,
                         name: data.name,
                         subject: data.subject || "Contabilidad II",
                         semester: data.semester || "FACES",
@@ -670,6 +604,7 @@
                 tutors = [
                     {
                         id: "1",
+                        uid: "1",
                         name: "Tia Paola Toro",
                         subject: "Contabilidad II",
                         semester: "7mo Semestre - Contaduría",
@@ -686,9 +621,139 @@
             } else {
                 tutors = fetchedTutors;
             }
-
             renderTutors();
         });
+
+        // Escuchar citas / solicitudes en tiempo real desde Firestore
+        onSnapshot(collection(db, "appointments"), (snapshot) => {
+            const fetchedAppointments = [];
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                fetchedAppointments.push({
+                    id: docSnap.id,
+                    tutorId: data.tutorId,
+                    tutorUid: data.tutorUid,
+                    tutorName: data.tutorName,
+                    subject: data.subject,
+                    price: data.price,
+                    studentName: data.studentName,
+                    studentEmail: data.studentEmail,
+                    date: data.date,
+                    time: data.time,
+                    modality: data.modality,
+                    location: data.location,
+                    status: data.status || 'Pendiente',
+                    review: data.review || null,
+                    messages: data.messages || []
+                });
+            });
+
+            // Filtramos para mostrar según el usuario actual (si es tutor ve las suyas, si es estudiante ve las suyas)
+            if (currentUser) {
+                appointments = fetchedAppointments.filter(a => 
+                    a.studentEmail === currentUser.email || a.tutorUid === currentUser.uid
+                );
+            } else {
+                appointments = fetchedAppointments;
+            }
+
+            renderAppointments();
+            renderTutorRequests();
+        });
+
+        // Confirmar agendamiento y guardarlo en Firestore
+        window.confirmBooking = async function(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert("Debes iniciar sesión con Google como estudiante para agendar.");
+                openAuthModal();
+                return;
+            }
+
+            const tutorId = document.getElementById('modal-tutor-id').value;
+            const tutorUid = document.getElementById('modal-tutor-uid').value;
+            const tutor = tutors.find(t => String(t.id) === String(tutorId));
+            const modality = document.getElementById('book-modality').value;
+
+            const newAppointment = {
+                tutorId: tutorId,
+                tutorUid: tutorUid,
+                tutorName: tutor ? tutor.name : 'Tutor',
+                subject: tutor ? tutor.subject : 'Tutoría',
+                price: tutor ? tutor.price : 10,
+                studentName: document.getElementById('book-student-name').value,
+                studentEmail: currentUser.email,
+                date: document.getElementById('book-date').value,
+                time: document.getElementById('book-time').value,
+                modality: modality,
+                location: modality === 'Online' ? 'Google Meet / Classroom' : document.getElementById('book-location').value,
+                status: 'Pendiente',
+                review: null,
+                messages: [],
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await addDoc(collection(db, "appointments"), newAppointment);
+                closeBookingModal();
+                document.getElementById('booking-form').reset();
+                alert('¡Solicitud enviada con éxito! El tutor ya la puede ver en su panel.');
+            } catch (error) {
+                console.error("Error al guardar la cita:", error);
+                alert("Hubo un error al registrar la cita en Firebase.");
+            }
+        };
+
+        // Cambiar estado de la cita (Aceptar / Rechazar)
+        window.updateAppointmentStatus = async function(id, newStatus) {
+            try {
+                const apptRef = doc(db, "appointments", id);
+                await updateDoc(apptRef, { status: newStatus });
+            } catch (error) {
+                console.error("Error al actualizar la cita:", error);
+                alert("No se pudo actualizar el estado de la cita.");
+            }
+        };
+
+        // Enviar mensaje de chat en tiempo real
+        window.sendMessage = async function(e) {
+            e.preventDefault();
+            const appointmentId = document.getElementById('chat-appointment-id').value;
+            const text = document.getElementById('chat-input').value;
+            const appt = appointments.find(a => String(a.id) === String(appointmentId));
+            if(!appt) return;
+
+            const senderName = currentUser ? currentUser.displayName : 'Usuario';
+            const updatedMessages = [...(appt.messages || []), { sender: senderName, text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
+
+            try {
+                const apptRef = doc(db, "appointments", appointmentId);
+                await updateDoc(apptRef, { messages: updatedMessages });
+                document.getElementById('chat-input').value = '';
+                appt.messages = updatedMessages;
+                renderMessages(appt);
+            } catch (error) {
+                console.error("Error al enviar mensaje:", error);
+            }
+        };
+
+        // Enviar reseña y calificación en Firebase
+        window.submitReview = async function(e) {
+            e.preventDefault();
+            const appointmentId = document.getElementById('review-appointment-id').value;
+            const rating = parseInt(document.getElementById('review-rating').value);
+            const comment = document.getElementById('review-comment').value;
+
+            try {
+                const apptRef = doc(db, "appointments", appointmentId);
+                await updateDoc(apptRef, { review: { rating, comment } });
+                closeReviewModal();
+                alert('¡Gracias por dejar tu reseña!');
+            } catch (error) {
+                console.error("Error al enviar reseña:", error);
+                alert("No se pudo guardar la reseña.");
+            }
+        };
 
         window.handleTutorRegister = async function(e) {
             e.preventDefault();
