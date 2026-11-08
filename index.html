@@ -163,7 +163,6 @@
                         </select>
                     </div>
                 </div>
-                <!-- NUEVOS CAMPOS DE DISPONIBILIDAD -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Días Disponibles</label>
@@ -211,7 +210,7 @@
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Modalidad</label>
                     <select id="book-modality" onchange="toggleLocationField()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
                         <option value="Presencial">Presencial (Campus USM)</option>
-                        <option value="Online">Online (Google Meet)</option>
+                        <option value="Online">Online (Google Meet / Classroom)</option>
                     </select>
                 </div>
                 <div id="location-container">
@@ -292,7 +291,7 @@
                 days: "Lunes a Miércoles",
                 hours: "8:00 AM - 12:00 PM",
                 image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
-                bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo. Clases dinámicas y resolución de exámenes pasados de FACES."
+                bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo."
             },
             {
                 id: 2,
@@ -306,7 +305,7 @@
                 days: "Martes y Jueves",
                 hours: "1:00 PM - 5:00 PM",
                 image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
-                bio: "Paso a paso para dominar derivadas avanzadas, integrales definidas e indefinidas y sus aplicaciones económicas."
+                bio: "Derivadas avanzadas e integrales aplicadas a la economía."
             },
             {
                 id: 3,
@@ -320,7 +319,7 @@
                 days: "Viernes",
                 hours: "9:00 AM - 2:00 PM",
                 image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300",
-                bio: "Explicación clara de tablas de frecuencia, probabilidades, distribuciones y análisis de datos enfocados a parciales."
+                bio: "Tablas de frecuencia, probabilidades y análisis de datos."
             }
         ];
 
@@ -472,7 +471,7 @@
                 date: document.getElementById('book-date').value,
                 time: document.getElementById('book-time').value,
                 modality: modality,
-                location: modality === 'Online' ? 'Google Meet' : document.getElementById('book-location').value,
+                location: modality === 'Online' ? 'Google Meet / Classroom' : document.getElementById('book-location').value,
                 status: 'Pendiente'
             };
             appointments.push(newAppointment);
@@ -480,7 +479,7 @@
             closeBookingModal();
             renderAppointments();
             renderTutorRequests();
-            alert('¡Solicitud enviada con éxito!');
+            alert('¡Solicitud enviada con éxito! El tutor la verá en su panel.');
         }
 
         function renderAppointments() {
@@ -489,7 +488,7 @@
                 container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No tienes tutorías agendadas por el momento.</p>`;
                 return;
             }
-            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center"><div><span class="font-bold text-sm">${a.subject}</span><span class="text-xs ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">${a.status}</span><div class="text-xs text-gray-600 mt-1">Tutor: ${a.tutorName} | ${a.date} a las ${a.time}</div></div><span class="font-bold text-blue-900 text-sm">$${a.price}.00</span></div>`).join('')}</div>`;
+            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center flex-wrap gap-2"><div><span class="font-bold text-sm">${a.subject}</span><span class="text-xs ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">${a.status}</span><div class="text-xs text-gray-600 mt-1">Tutor: ${a.tutorName} | ${a.date} a las ${a.time} (${a.modality})</div></div><span class="font-bold text-blue-900 text-sm">$${a.price}.00</span></div>`).join('')}</div>`;
         }
 
         function renderTutorRequests() {
@@ -506,7 +505,7 @@
                 container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No has recibido solicitudes aún.</p>`;
                 return;
             }
-            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-white flex justify-between items-center"><div><span class="font-bold text-sm">${a.studentName}</span><span class="text-xs bg-blue-100 text-blue-800 ml-2 px-2 py-0.5 rounded">${a.subject}</span><div class="text-xs text-gray-600 mt-1">${a.date} @ ${a.time}</div></div><div>${a.status === 'Pendiente' ? `<button onclick="updateStatus(${a.id}, 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg mr-1">Aceptar</button><button onclick="updateStatus(${a.id}, 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1 rounded-lg bg-green-100 text-green-800">${a.status}</span>`}</div></div>`).join('')}</div>`;
+            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `<div class="p-4 rounded-xl border border-gray-200 bg-white flex justify-between items-center flex-wrap gap-2"><div><span class="font-bold text-sm">${a.studentName}</span><span class="text-xs bg-blue-100 text-blue-800 ml-2 px-2 py-0.5 rounded">${a.subject}</span><div class="text-xs text-gray-600 mt-1">${a.date} @ ${a.time} - ${a.modality}</div></div><div class="flex gap-2">${a.status === 'Pendiente' ? `<button onclick="updateStatus(${a.id}, 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Aceptar</button><button onclick="updateStatus(${a.id}, 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-100 text-green-800">${a.status}</span>`}</div></div>`).join('')}</div>`;
         }
 
         function updateStatus(id, newStatus) {
@@ -541,7 +540,7 @@
         }
     </script>
 
-    <!-- INTEGRADOR FIREBASE REAL -->
+    <!-- INTEGRADOR FIREBASE CON COLECCIONES SEPARADAS (STUDENTS / TUTORS) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -592,7 +591,9 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 
-                const userRef = doc(db, "users", user.uid);
+                // Determinamos la colección según el rol seleccionado: 'students' o 'tutors'
+                const collectionName = selectedRole === 'estudiante' ? 'students' : 'tutors';
+                const userRef = doc(db, collectionName, user.uid);
                 const userSnap = await getDoc(userRef);
 
                 if (!userSnap.exists()) {
