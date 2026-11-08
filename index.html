@@ -83,7 +83,7 @@
         <section>
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-gray-900">Tutores Disponibles</h3>
-                <span id="tutor-count" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full">3 tutores</span>
+                <span id="tutor-count" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full">Cargando tutores...</span>
             </div>
             <div id="tutors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
@@ -242,7 +242,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CHAT INTERNO EN TIEMPO REAL -->
+    <!-- MODAL DE CHAT INTERNO -->
     <div id="chat-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[500px]">
             <div class="flex justify-between items-center border-b pb-3 mb-3">
@@ -252,11 +252,9 @@
                 </div>
                 <button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <!-- Cuerpo de mensajes -->
             <div id="chat-messages" class="flex-grow overflow-y-auto space-y-3 pr-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
                 <p class="text-center text-xs text-gray-400 py-4">Inicia la conversación para coordinar los detalles de tu clase.</p>
             </div>
-            <!-- Formulario de envío -->
             <form onsubmit="sendMessage(event)" class="mt-3 flex gap-2">
                 <input type="hidden" id="chat-appointment-id">
                 <input type="text" id="chat-input" required placeholder="Escribe un mensaje..." class="flex-grow border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
@@ -327,61 +325,15 @@
         <p>© 2026 Tutorías FACES - Universidad Santa María (Sede La Florencia)</p>
     </footer>
 
-    <!-- LOGICA DE INTERFAZ -->
+    <!-- LOGICA DE INTERFAZ Y EVENTOS LOCALES -->
     <script>
-        const initialTutors = [
-            {
-                id: 1,
-                name: "Tia Paola Toro",
-                subject: "Contabilidad II",
-                semester: "7mo Semestre - Contaduría",
-                price: 12,
-                rating: 4.9,
-                reviews: 18,
-                modality: "Presencial y Online",
-                days: "Lunes a Miércoles",
-                hours: "8:00 AM - 12:00 PM",
-                image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
-                bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo."
-            },
-            {
-                id: 2,
-                name: "Elieser Cule bralarga",
-                subject: "Matemática III",
-                semester: "8vo Semestre - Economía",
-                price: 10,
-                rating: 5.0,
-                reviews: 24,
-                modality: "Presencial",
-                days: "Martes y Jueves",
-                hours: "1:00 PM - 5:00 PM",
-                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
-                bio: "Derivadas avanzadas e integrales aplicadas a la economía."
-            },
-            {
-                id: 3,
-                name: "Desousa Madeira",
-                subject: "Estadística I",
-                semester: "6to Semestre - Administración",
-                price: 10,
-                rating: 4.8,
-                reviews: 15,
-                modality: "Presencial y Online",
-                days: "Viernes",
-                hours: "9:00 AM - 2:00 PM",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300",
-                bio: "Tablas de frecuencia, probabilidades y análisis de datos."
-            }
-        ];
-
-        let tutors = initialTutors;
+        let tutors = [];
         let appointments = JSON.parse(localStorage.getItem('usm_appointments')) || [];
         let activeCategory = 'all';
 
         document.addEventListener("DOMContentLoaded", () => {
             const dateInput = document.getElementById('book-date');
             if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
-            renderTutors();
             renderAppointments();
             renderTutorRequests();
         });
@@ -430,16 +382,16 @@
             const modalityVal = document.getElementById('modality-filter').value;
 
             const filtered = tutors.filter(t => {
-                const matchesSearch = t.name.toLowerCase().includes(searchVal) || t.subject.toLowerCase().includes(searchVal);
-                const matchesModality = modalityVal === 'all' || t.modality.includes(modalityVal);
-                const matchesCategory = activeCategory === 'all' || t.subject.toLowerCase() === activeCategory.toLowerCase();
+                const matchesSearch = (t.name && t.name.toLowerCase().includes(searchVal)) || (t.subject && t.subject.toLowerCase().includes(searchVal));
+                const matchesModality = modalityVal === 'all' || (t.modality && t.modality.includes(modalityVal));
+                const matchesCategory = activeCategory === 'all' || (t.subject && t.subject.toLowerCase() === activeCategory.toLowerCase());
                 return matchesSearch && matchesModality && matchesCategory;
             });
 
             document.getElementById('tutor-count').innerText = `${filtered.length} tutor${filtered.length === 1 ? '' : 'es'}`;
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300"><p class="text-gray-500 text-sm">No se encontraron tutores.</p></div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300"><p class="text-gray-500 text-sm">No se encontraron tutores disponibles en este momento.</p></div>`;
                 return;
             }
 
@@ -448,25 +400,25 @@
                     <div class="p-5">
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex items-center space-x-3">
-                                <img src="${t.image}" alt="${t.name}" class="w-14 h-14 rounded-full object-cover border-2 border-blue-900 shadow-sm">
+                                <img src="${t.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}" alt="${t.name}" class="w-14 h-14 rounded-full object-cover border-2 border-blue-900 shadow-sm">
                                 <div>
                                     <h4 class="font-bold text-gray-900 leading-tight">${t.name}</h4>
-                                    <span class="text-xs text-gray-500">${t.semester}</span>
-                                    <div class="text-xs text-amber-600 font-bold mt-0.5"><i class="fa-solid fa-star"></i> ${t.rating} (${t.reviews} reseñas)</div>
+                                    <span class="text-xs text-gray-500">${t.semester || 'Tutor USM'}</span>
+                                    <div class="text-xs text-amber-600 font-bold mt-0.5"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} (${t.reviews || 1} reseñas)</div>
                                 </div>
                             </div>
-                            <span class="bg-blue-50 text-blue-900 font-extrabold text-sm px-2.5 py-1 rounded-lg border border-blue-100">$${t.price}/h</span>
+                            <span class="bg-blue-50 text-blue-900 font-extrabold text-sm px-2.5 py-1 rounded-lg border border-blue-100">$${t.price || 10}/h</span>
                         </div>
                         <div class="mb-3">
                             <span class="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full mb-2">${t.subject}</span>
                             <div class="text-xs text-emerald-700 font-medium bg-emerald-50 px-2.5 py-1 rounded-lg mb-2 border border-emerald-100">
-                                <i class="fa-regular fa-clock mr-1"></i> ${t.days}: ${t.hours}
+                                <i class="fa-regular fa-clock mr-1"></i> ${t.days || 'Consultar'}: ${t.hours || 'Horario a convenir'}
                             </div>
-                            <p class="text-xs text-gray-600 line-clamp-3 leading-relaxed">${t.bio}</p>
+                            <p class="text-xs text-gray-600 line-clamp-3 leading-relaxed">${t.bio || 'Sin biografía disponible.'}</p>
                         </div>
                     </div>
                     <div class="p-4 bg-gray-50 border-t border-gray-100">
-                        <button onclick="openBookingModal(${t.id})" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center">
+                        <button onclick="openBookingModal('${t.id}')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center">
                             <i class="fa-solid fa-calendar-plus mr-1.5"></i> Agendar Tutoría
                         </button>
                     </div>
@@ -490,14 +442,14 @@
         }
 
         function openBookingModal(tutorId) {
-            const tutor = tutors.find(t => t.id === tutorId);
+            const tutor = tutors.find(t => String(t.id) === String(tutorId));
             if (!tutor) return;
             document.getElementById('modal-tutor-id').value = tutor.id;
             document.getElementById('modal-tutor-name').innerText = tutor.name;
             document.getElementById('modal-tutor-subject').innerText = tutor.subject;
-            document.getElementById('modal-tutor-img').src = tutor.image;
-            document.getElementById('modal-tutor-availability').querySelector('span').innerText = `${tutor.days} (${tutor.hours})`;
-            document.getElementById('modal-total-price').innerText = `$${tutor.price}.00`;
+            document.getElementById('modal-tutor-img').src = tutor.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
+            document.getElementById('modal-tutor-availability').querySelector('span').innerText = `${tutor.days || 'Días a convenir'} (${tutor.hours || 'Horarios a convenir'})`;
+            document.getElementById('modal-total-price').innerText = `$${tutor.price || 10}.00`;
             document.getElementById('booking-modal').classList.remove('hidden');
         }
 
@@ -511,15 +463,15 @@
 
         function confirmBooking(e) {
             e.preventDefault();
-            const tutorId = parseInt(document.getElementById('modal-tutor-id').value);
-            const tutor = tutors.find(t => t.id === tutorId);
+            const tutorId = document.getElementById('modal-tutor-id').value;
+            const tutor = tutors.find(t => String(t.id) === String(tutorId));
             const modality = document.getElementById('book-modality').value;
             const newAppointment = {
                 id: Date.now(),
-                tutorId: tutor.id,
-                tutorName: tutor.name,
-                subject: tutor.subject,
-                price: tutor.price,
+                tutorId: tutor ? tutor.id : tutorId,
+                tutorName: tutor ? tutor.name : 'Tutor',
+                subject: tutor ? tutor.subject : 'Tutoría',
+                price: tutor ? tutor.price : 10,
                 studentName: document.getElementById('book-student-name').value,
                 date: document.getElementById('book-date').value,
                 time: document.getElementById('book-time').value,
@@ -537,7 +489,6 @@
             alert('¡Solicitud enviada con éxito!');
         }
 
-        // FUNCIONES DE CHAT INTERNO
         function openChatModal(appointmentId) {
             document.getElementById('chat-appointment-id').value = appointmentId;
             const appt = appointments.find(a => a.id === appointmentId);
@@ -549,9 +500,7 @@
             document.getElementById('chat-modal').classList.remove('hidden');
         }
 
-        function closeChatModal() {
-            document.getElementById('chat-modal').classList.add('hidden');
-        }
+        function closeChatModal() { document.getElementById('chat-modal').classList.add('hidden'); }
 
         function renderMessages(appt) {
             const container = document.getElementById('chat-messages');
@@ -594,29 +543,20 @@
             document.getElementById('review-modal').classList.remove('hidden');
         }
 
-        function closeReviewModal() {
-            document.getElementById('review-modal').classList.add('hidden');
-        }
+        function closeReviewModal() { document.getElementById('review-modal').classList.add('hidden'); }
 
         function submitReview(e) {
             e.preventDefault();
             const appointmentId = parseInt(document.getElementById('review-appointment-id').value);
-            const tutorId = parseInt(document.getElementById('review-tutor-id').value);
+            const tutorId = document.getElementById('review-tutor-id').value;
             const rating = parseInt(document.getElementById('review-rating').value);
             const comment = document.getElementById('review-comment').value;
 
             appointments = appointments.map(a => a.id === appointmentId ? {...a, review: {rating, comment}} : a);
             localStorage.setItem('usm_appointments', JSON.stringify(appointments));
 
-            const tutor = tutors.find(t => t.id === tutorId);
-            if(tutor) {
-                tutor.reviews += 1;
-                tutor.rating = parseFloat(((tutor.rating * (tutor.reviews - 1) + rating) / tutor.reviews).toFixed(1));
-            }
-
             closeReviewModal();
             renderAppointments();
-            renderTutors();
             alert('¡Gracias por dejar tu reseña!');
         }
 
@@ -637,7 +577,7 @@
                     <div class="flex items-center gap-2 flex-wrap">
                         <span class="font-bold text-blue-900 text-sm">$${a.price}.00</span>
                         <button onclick="openChatModal(${a.id})" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Abrir Chat</button>
-                        ${a.status === 'Confirmada' && !a.review ? `<button onclick="openReviewModal(${a.id}, ${a.tutorId}, '${a.tutorName}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800">Calificar</button>` : ''}
+                        ${a.status === 'Confirmada' && !a.review ? `<button onclick="openReviewModal(${a.id}, '${a.tutorId}', '${a.tutorName}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800">Calificar</button>` : ''}
                     </div>
                 </div>
             `).join('')}</div>`;
@@ -678,37 +618,13 @@
             renderAppointments();
             renderTutorRequests();
         }
-
-        function handleTutorRegister(e) {
-            e.preventDefault();
-            const newTutor = {
-                id: Date.now(),
-                name: document.getElementById('reg-name').value,
-                subject: document.getElementById('reg-subject').value,
-                semester: document.getElementById('reg-semester').value,
-                price: parseFloat(document.getElementById('reg-price').value),
-                rating: 5.0,
-                reviews: 1,
-                modality: document.getElementById('reg-modality').value,
-                days: document.getElementById('reg-days').value,
-                hours: document.getElementById('reg-hours').value,
-                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
-                bio: document.getElementById('reg-bio').value || "Estudiante de apoyo."
-            };
-            tutors.unshift(newTutor);
-            renderTutors();
-            document.getElementById('tutor-register-form').reset();
-            alert('¡Perfil publicado con éxito!');
-            switchTutorTab('requests');
-            switchMode('student');
-        }
     </script>
 
-    <!-- INTEGRADOR FIREBASE CON BLOQUEO DE ROL CRUZADO -->
+    <!-- INTEGRADOR FIREBASE Y CONSULTA REALTIME DE TUTORES -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDqmEKtiTD3z2bRFuIZKvJY8pzt2Kls9Kg",
@@ -725,6 +641,72 @@
         const db = getFirestore(app);
 
         let selectedRole = 'estudiante';
+        let currentUser = null;
+
+        // Escuchar tutores en tiempo real desde Firestore
+        onSnapshot(collection(db, "tutors"), (snapshot) => {
+            const fetchedTutors = [];
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                if(data.subject) { // Solo agregamos si completó el formulario de tutor
+                    fetchedTutors.push({
+                        id: doc.id,
+                        name: data.name || "Tutor USM",
+                        subject: data.subject || "General",
+                        semester: data.semester || "FACES",
+                        price: data.price || 10,
+                        rating: data.rating || 5.0,
+                        reviews: data.reviews || 1,
+                        modality: data.modality || "Presencial y Online",
+                        days: data.days || "Días a convenir",
+                        hours: data.hours || "Horario flexible",
+                        image: data.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+                        bio: data.bio || "Tutor disponible."
+                    });
+                }
+            });
+            tutors = fetchedTutors;
+            renderTutors();
+        });
+
+        // Registrar / Editar perfil de tutor en Firestore
+        window.handleTutorRegister = async function(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert("Debes iniciar sesión con Google antes de publicar un perfil de tutor.");
+                openAuthModal();
+                return;
+            }
+
+            const tutorData = {
+                uid: currentUser.uid,
+                name: document.getElementById('reg-name').value,
+                subject: document.getElementById('reg-subject').value,
+                semester: document.getElementById('reg-semester').value,
+                price: parseFloat(document.getElementById('reg-price').value),
+                modality: document.getElementById('reg-modality').value,
+                days: document.getElementById('reg-days').value,
+                hours: document.getElementById('reg-hours').value,
+                bio: document.getElementById('reg-bio').value || "Estudiante de apoyo.",
+                photo: currentUser.photoURL,
+                email: currentUser.email,
+                role: 'tutor',
+                rating: 5.0,
+                reviews: 1,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                await setDoc(doc(db, "tutors", currentUser.uid), tutorData, { merge: true });
+                document.getElementById('tutor-register-form').reset();
+                alert('¡Tu perfil de tutor ha sido publicado exitosamente en Firebase!');
+                switchTutorTab('requests');
+                switchMode('student');
+            } catch (error) {
+                console.error("Error al publicar el tutor:", error);
+                alert("Hubo un error al guardar tu perfil de tutor.");
+            }
+        };
 
         window.setRole = function(role) {
             selectedRole = role;
@@ -792,6 +774,7 @@
         }
 
         onAuthStateChanged(auth, (user) => {
+            currentUser = user;
             const authContainer = document.getElementById('auth-container');
             if (user) {
                 authContainer.innerHTML = `
