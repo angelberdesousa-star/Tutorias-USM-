@@ -264,7 +264,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CHAT INTERNO -->
+    <!-- MODAL DE CHAT INTERNO EN TIEMPO REAL -->
     <div id="chat-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[520px] animate-modal">
             <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
@@ -406,6 +406,7 @@
         let appointments = [];
         let activeCategory = 'all';
         let currentUserRole = null;
+        let activeChatUnsubscribe = null; // Variable para gestionar la escucha en tiempo real del chat
 
         document.addEventListener("DOMContentLoaded", () => {
             const dateInput = document.getElementById('book-date');
@@ -562,30 +563,22 @@
             container.style.display = modality === 'Online' ? 'none' : 'block';
         }
 
-        function openChatModal(appointmentId) {
-            document.getElementById('chat-appointment-id').value = appointmentId;
-            const appt = appointments.find(a => String(a.id) === String(appointmentId));
-            if(!appt) return;
-
-            document.getElementById('chat-title').innerText = `Chat: ${appt.subject}`;
-            document.getElementById('chat-subtitle').innerText = `Estudiante: ${appt.studentName} | Tutor: ${appt.tutorName}`;
-            renderMessages(appt);
-            document.getElementById('chat-modal').classList.remove('hidden');
-            document.getElementById('chat-modal').classList.add('flex');
-        }
-
         function closeChatModal() { 
+            if (activeChatUnsubscribe) {
+                activeChatUnsubscribe(); // Detener la escucha al cerrar el chat
+                activeChatUnsubscribe = null;
+            }
             document.getElementById('chat-modal').classList.add('hidden');
             document.getElementById('chat-modal').classList.remove('flex');
         }
 
-        function renderMessages(appt) {
+        function renderMessages(messages) {
             const container = document.getElementById('chat-messages');
-            if(!appt.messages || appt.messages.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay mensajes aún. ¡Escribe el primero para coordinar!</p>`;
+            if(!messages || messages.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay mensajes aún. ¡Escribe el primero para coordinar!</p>';
                 return;
             }
-            container.innerHTML = appt.messages.map(m => `
+            container.innerHTML = messages.map(m => `
                 <div class="flex flex-col animate-fade-in">
                     <span class="text-[10px] font-bold text-slate-400">${m.sender} <span class="text-[9px] font-normal">${m.time || ''}</span></span>
                     <div class="bg-blue-600 text-white text-xs p-3 rounded-2xl max-w-[85%] mt-1 shadow-sm leading-relaxed">${m.text}</div>
@@ -667,7 +660,7 @@
         }
     </script>
 
-    <!-- INTEGRADOR FIREBASE, GESTIÓN DE ROLES Y DETALLE DE USUARIOS ADMIN -->
+    <!-- INTEGRADOR FIREBASE Y CHAT EN TIEMPO REAL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -703,7 +696,6 @@
             document.getElementById('admin-count-students').innerText = totalStudents;
             document.getElementById('admin-count-tutors').innerText = totalTutors;
 
-            // Renderizar Lista Estudiantes
             const containerStudents = document.getElementById('admin-list-students');
             if (totalStudents === 0) {
                 containerStudents.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay estudiantes registrados aún.</p>`;
@@ -722,7 +714,6 @@
                 `).join('');
             }
 
-            // Renderizar Lista Tutores
             const containerTutors = document.getElementById('admin-list-tutors');
             if (totalTutors === 0) {
                 containerTutors.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay tutores registrados aún.</p>`;
@@ -745,7 +736,6 @@
             }
         }
 
-        // Escuchar 'students' en tiempo real
         onSnapshot(collection(db, "students"), (snapshot) => {
             registeredStudentsList = [];
             snapshot.forEach(docSnap => {
@@ -754,7 +744,6 @@
             updateAdminUI();
         });
 
-        // Escuchar 'tutors' en tiempo real
         onSnapshot(collection(db, "tutors"), (snapshot) => {
             registeredTutorsList = [];
             const fetchedTutors = [];
@@ -842,6 +831,32 @@
             renderTutorRequests();
         });
 
+        // Función global para abrir el chat y escuchar cambios en tiempo real en esa cita
+        window.openChatModal = function(appointmentId) {
+            document.getElementById('chat-appointment-id').value = appointmentId;
+            const appt = appointments.find(a => String(a.id) === String(appointmentId));
+            if(!appt) return;
+
+            document.getElementById('chat-title').innerText = `Chat: ${appt.subject}`;
+            document.getElementById('chat-subtitle').innerText = `Estudiante: ${appt.studentName} | Tutor: ${appt.tutorName}`;
+            
+            document.getElementById('chat-modal').classList.remove('hidden');
+            document.getElementById('chat-modal').classList.add('flex');
+
+            // Si ya hay un listener activo anterior, lo cerramos
+            if (window.activeChatUnsubscribe) {
+                window.activeChatUnsubscribe();
+            }
+
+            // Escuchar los mensajes de esta cita específica en tiempo real con onSnapshot
+            window.activeChatUnsubscribe = onSnapshot(doc(db, "appointments", appointmentId), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    renderMessages(data.messages || []);
+                }
+            });
+        }
+
         window.confirmBooking = async function(e) {
             e.preventDefault();
             if (!currentUser || currentUserRole !== 'estudiante') {
@@ -895,21 +910,32 @@
         window.sendMessage = async function(e) {
             e.preventDefault();
             const appointmentId = document.getElementById('chat-appointment-id').value;
-            const text = document.getElementById('chat-input').value;
-            const appt = appointments.find(a => String(a.id) === String(appointmentId));
-            if(!appt) return;
+            const textInput = document.getElementById('chat-input');
+            const text = textInput.value.trim();
+            if(!text) return;
 
-            const senderName = currentUser ? currentUser.displayName : 'Usuario';
-            const updatedMessages = [...(appt.messages || []), { sender: senderName, text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
-
+            const apptRef = doc(db, "appointments", appointmentId);
+            
             try {
-                const apptRef = doc(db, "appointments", appointmentId);
+                const docSnap = await getDoc(apptRef);
+                if (!docSnap.exists()) return;
+                
+                const currentData = docSnap.data();
+                const senderName = currentUser ? currentUser.displayName : 'Usuario';
+                const newMessage = { 
+                    sender: senderName, 
+                    text: text, 
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                };
+
+                const updatedMessages = [...(currentData.messages || []), newMessage];
+
+                // Actualizar Firestore (esto disparará el onSnapshot y actualizará el chat en vivo sin recargar)
                 await updateDoc(apptRef, { messages: updatedMessages });
-                document.getElementById('chat-input').value = '';
-                appt.messages = updatedMessages;
-                renderMessages(appt);
+                textInput.value = '';
             } catch (error) {
                 console.error("Error al enviar mensaje:", error);
+                alert("Hubo un error al enviar el mensaje.");
             }
         };
 
