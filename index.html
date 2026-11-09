@@ -343,41 +343,52 @@
         </div>
     </div>
 
-    <!-- MODAL DE PANEL ADMIN / MÉTRICAS (Oculto para todos, solo abre con contraseña) -->
+    <!-- MODAL DE PANEL ADMIN / MÉTRICAS Y LISTA DE USUARIOS -->
     <div id="admin-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-xl w-full p-8 shadow-2xl relative animate-modal">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-8 shadow-2xl relative max-h-[90vh] flex flex-col animate-modal">
             <button onclick="closeAdminModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-12 h-12 bg-blue-900 text-white rounded-2xl flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-shield-halved"></i></div>
                 <div>
                     <h3 class="text-xl font-black text-slate-900">Panel de Control Admin</h3>
-                    <p class="text-xs text-slate-500">Métricas exclusivas y privadas de la plataforma</p>
+                    <p class="text-xs text-slate-500">Métricas exclusivas y registros de usuarios</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Usuarios</span>
-                    <span id="metric-total-users" class="text-3xl font-black text-slate-900">0</span>
+            <!-- Resumen de Métricas -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Registrados</span>
+                    <span id="metric-total-users" class="text-2xl font-black text-slate-900">0</span>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Estudiantes</span>
-                    <span id="metric-total-students" class="text-3xl font-black text-indigo-600">0</span>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Estudiantes</span>
+                    <span id="metric-total-students" class="text-2xl font-black text-indigo-600">0</span>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tutores Activos</span>
-                    <span id="metric-total-tutors" class="text-3xl font-black text-emerald-600">0</span>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm text-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tutores Activos</span>
+                    <span id="metric-total-tutors" class="text-2xl font-black text-emerald-600">0</span>
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                <div class="flex justify-between items-center text-xs font-bold mb-2">
-                    <span class="text-indigo-600" id="label-students-percent">Estudiantes: 0%</span>
-                    <span class="text-emerald-600" id="label-tutors-percent">Tutores: 0%</span>
+            <!-- Pestañas para Ver Estudiantes y Tutores -->
+            <div class="flex border-b border-slate-200 mb-4">
+                <button id="admin-tab-students" onclick="switchAdminTab('students')" class="flex-1 py-2.5 font-bold text-xs active-tab transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-user-graduate"></i> Estudiantes (<span id="admin-count-students">0</span>)
+                </button>
+                <button id="admin-tab-tutors" onclick="switchAdminTab('tutors')" class="flex-1 py-2.5 font-bold text-xs text-slate-400 hover:text-slate-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-chalkboard-user"></i> Tutores (<span id="admin-count-tutors">0</span>)
+                </button>
+            </div>
+
+            <!-- Listado de Usuarios Registrados -->
+            <div class="flex-grow overflow-y-auto pr-1">
+                <div id="admin-list-students" class="space-y-3">
+                    <p class="text-center text-xs text-slate-400 py-6 font-medium">Cargando lista de estudiantes...</p>
                 </div>
-                <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden flex">
-                    <div id="bar-students" class="bg-indigo-600 h-full transition-all duration-500" style="width: 50%;"></div>
-                    <div id="bar-tutors" class="bg-emerald-500 h-full transition-all duration-500" style="width: 50%;"></div>
+                <div id="admin-list-tutors" class="space-y-3 hidden">
+                    <p class="text-center text-xs text-slate-400 py-6 font-medium">Cargando lista de tutores...</p>
                 </div>
             </div>
         </div>
@@ -403,7 +414,6 @@
 
         function promptAdminAccess() {
             const pass = prompt("Introduce la contraseña de administrador:");
-            // Cambia "tu_clave_secreta_123" por la contraseña que tú desees usar
             if (pass === "tu_clave_secreta_123") {
                 document.getElementById('admin-modal').classList.remove('hidden');
                 document.getElementById('admin-modal').classList.add('flex');
@@ -415,6 +425,25 @@
         function closeAdminModal() {
             document.getElementById('admin-modal').classList.add('hidden');
             document.getElementById('admin-modal').classList.remove('flex');
+        }
+
+        function switchAdminTab(tab) {
+            const listStudents = document.getElementById('admin-list-students');
+            const listTutors = document.getElementById('admin-list-tutors');
+            const tabStudents = document.getElementById('admin-tab-students');
+            const tabTutors = document.getElementById('admin-tab-tutors');
+
+            if (tab === 'students') {
+                listStudents.classList.remove('hidden');
+                listTutors.classList.add('hidden');
+                tabStudents.className = "flex-1 py-2.5 font-bold text-xs active-tab transition flex items-center justify-center gap-2";
+                tabTutors.className = "flex-1 py-2.5 font-bold text-xs text-slate-400 hover:text-slate-700 transition flex items-center justify-center gap-2";
+            } else {
+                listStudents.classList.add('hidden');
+                listTutors.classList.remove('hidden');
+                tabTutors.className = "flex-1 py-2.5 font-bold text-xs active-tab transition flex items-center justify-center gap-2";
+                tabStudents.className = "flex-1 py-2.5 font-bold text-xs text-slate-400 hover:text-slate-700 transition flex items-center justify-center gap-2";
+            }
         }
 
         function switchTutorTab(tab) {
@@ -638,7 +667,7 @@
         }
     </script>
 
-    <!-- INTEGRADOR FIREBASE, GESTIÓN DE ROLES Y MÉTRICAS ADMIN -->
+    <!-- INTEGRADOR FIREBASE, GESTIÓN DE ROLES Y DETALLE DE USUARIOS ADMIN -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -660,43 +689,80 @@
 
         let selectedRole = 'estudiante';
         let currentUser = null;
-        let totalStudentsCount = 0;
-        let totalTutorsCount = 0;
+        let registeredStudentsList = [];
+        let registeredTutorsList = [];
 
-        function updateMetricsUI() {
-            const totalUsers = totalStudentsCount + totalTutorsCount;
+        function updateAdminUI() {
+            const totalStudents = registeredStudentsList.length;
+            const totalTutors = registeredTutorsList.length;
+            const totalUsers = totalStudents + totalTutors;
+
             document.getElementById('metric-total-users').innerText = totalUsers;
-            document.getElementById('metric-total-students').innerText = totalStudentsCount;
-            document.getElementById('metric-total-tutors').innerText = totalTutorsCount;
+            document.getElementById('metric-total-students').innerText = totalStudents;
+            document.getElementById('metric-total-tutors').innerText = totalTutors;
+            document.getElementById('admin-count-students').innerText = totalStudents;
+            document.getElementById('admin-count-tutors').innerText = totalTutors;
 
-            let studentPercent = 0;
-            let tutorPercent = 0;
-
-            if (totalUsers > 0) {
-                studentPercent = Math.round((totalStudentsCount / totalUsers) * 100);
-                tutorPercent = 100 - studentPercent;
+            // Renderizar Lista Estudiantes
+            const containerStudents = document.getElementById('admin-list-students');
+            if (totalStudents === 0) {
+                containerStudents.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay estudiantes registrados aún.</p>`;
+            } else {
+                containerStudents.innerHTML = registeredStudentsList.map(s => `
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${s.photo || 'https://via.placeholder.com/40'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
+                            <div>
+                                <span class="font-bold text-xs text-slate-900 block leading-tight">${s.name || 'Estudiante'}</span>
+                                <span class="text-[10px] text-slate-500 block">${s.email || 'Sin correo registrado'}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg">Estudiante</span>
+                    </div>
+                `).join('');
             }
 
-            document.getElementById('label-students-percent').innerText = `Estudiantes: ${studentPercent}%`;
-            document.getElementById('label-tutors-percent').innerText = `Tutores: ${tutorPercent}%`;
-
-            document.getElementById('bar-students').style.width = `${studentPercent}%`;
-            document.getElementById('bar-tutors').style.width = `${tutorPercent}%`;
+            // Renderizar Lista Tutores
+            const containerTutors = document.getElementById('admin-list-tutors');
+            if (totalTutors === 0) {
+                containerTutors.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay tutores registrados aún.</p>`;
+            } else {
+                containerTutors.innerHTML = registeredTutorsList.map(t => `
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${t.photo || 'https://via.placeholder.com/40'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
+                            <div>
+                                <span class="font-bold text-xs text-slate-900 block leading-tight">${t.name || 'Tutor'}</span>
+                                <span class="text-[10px] text-slate-500 block">${t.email || 'Sin correo registrado'}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg block mb-1">${t.subject || 'Materia'}</span>
+                            <span class="text-[10px] font-bold text-slate-600">$${t.price || 10}/h</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
+        // Escuchar 'students' en tiempo real
         onSnapshot(collection(db, "students"), (snapshot) => {
-            totalStudentsCount = snapshot.size;
-            updateMetricsUI();
+            registeredStudentsList = [];
+            snapshot.forEach(docSnap => {
+                registeredStudentsList.push(docSnap.data());
+            });
+            updateAdminUI();
         });
 
+        // Escuchar 'tutors' en tiempo real
         onSnapshot(collection(db, "tutors"), (snapshot) => {
-            totalTutorsCount = snapshot.size;
-            updateMetricsUI();
-
+            registeredTutorsList = [];
             const fetchedTutors = [];
+
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 if (data.name) {
+                    registeredTutorsList.push(data);
                     fetchedTutors.push({
                         id: docSnap.id,
                         uid: data.uid || docSnap.id,
@@ -736,7 +802,9 @@
             } else {
                 tutors = fetchedTutors;
             }
+
             renderTutors();
+            updateAdminUI();
         });
 
         onSnapshot(collection(db, "appointments"), (snapshot) => {
