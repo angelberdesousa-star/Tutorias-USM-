@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutorías FACES - USM</title>
+    <title>USMtutor</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -37,7 +37,7 @@
             <div class="flex items-center space-x-3">
                 <div class="bg-gradient-to-tr from-blue-900 to-blue-600 text-white w-11 h-11 rounded-xl flex items-center justify-center font-black text-xl shadow-md shadow-blue-900/20">USM</div>
                 <div>
-                    <h1 class="font-extrabold text-base sm:text-lg leading-tight text-slate-900 tracking-tight">Tutorías FACES</h1>
+                    <h1 class="font-extrabold text-base sm:text-lg leading-tight text-slate-900 tracking-tight">USMtutor</h1>
                     <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Campus La Florencia</span>
                 </div>
             </div>
@@ -264,7 +264,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CHAT INTERNO -->
+    <!-- MODAL DE CHAT INTERNO EN TIEMPO REAL -->
     <div id="chat-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[520px] animate-modal">
             <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
@@ -320,7 +320,7 @@
             <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
             <div class="text-center mb-8">
                 <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
-                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Acceso a Tutorías USM</h3>
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Acceso a USMtutor</h3>
                 <p class="text-sm text-slate-500 mt-1">Selecciona tu perfil universitario para continuar</p>
             </div>
             
@@ -396,7 +396,7 @@
 
     <!-- FOOTER CON ACCESO SECRETO ADMIN -->
     <footer class="bg-slate-900 text-slate-400 py-8 mt-16 border-t border-slate-800 text-center text-xs font-medium">
-        <p>© 2026 Tutorías FACES - Universidad Santa María (Sede La Florencia)</p>
+        <p>© 2026 USMtutor - Universidad Santa María (Sede La Florencia)</p>
         <button onclick="promptAdminAccess()" class="mt-2 text-slate-600 hover:text-slate-400 transition text-[10px] tracking-widest uppercase">Admin Panel</button>
     </footer>
 
@@ -406,6 +406,23 @@
         let appointments = [];
         let activeCategory = 'all';
         let currentUserRole = null;
+        let activeChatUnsubscribe = null;
+
+        // Lista negra de palabras prohibidas o inapropiadas para nombres
+        const bannedWords = [
+            "puta", "puto", "mierda", "coño", "marico", "marica", "idiota", "estupido", "estúpido", 
+            "imbecil", "imbécil", "cabron", "cabrón", "pendejo", "verga", "verco", "puvto", "put0",
+            "fuck", "shit", "bitch", "asshole", "bastard", "dick", "caca", "culo", "nazi", "hitler"
+        ];
+
+        function containsInappropriateName(name) {
+            if (!name) return false;
+            const lowerName = name.toLowerCase();
+            return bannedWords.some(word => {
+                const regex = new RegExp(`\\b${word}\\b`, 'i');
+                return regex.test(lowerName) || lowerName.includes(word);
+            });
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             const dateInput = document.getElementById('book-date');
@@ -562,30 +579,22 @@
             container.style.display = modality === 'Online' ? 'none' : 'block';
         }
 
-        function openChatModal(appointmentId) {
-            document.getElementById('chat-appointment-id').value = appointmentId;
-            const appt = appointments.find(a => String(a.id) === String(appointmentId));
-            if(!appt) return;
-
-            document.getElementById('chat-title').innerText = `Chat: ${appt.subject}`;
-            document.getElementById('chat-subtitle').innerText = `Estudiante: ${appt.studentName} | Tutor: ${appt.tutorName}`;
-            renderMessages(appt);
-            document.getElementById('chat-modal').classList.remove('hidden');
-            document.getElementById('chat-modal').classList.add('flex');
-        }
-
         function closeChatModal() { 
+            if (activeChatUnsubscribe) {
+                activeChatUnsubscribe();
+                activeChatUnsubscribe = null;
+            }
             document.getElementById('chat-modal').classList.add('hidden');
             document.getElementById('chat-modal').classList.remove('flex');
         }
 
-        function renderMessages(appt) {
+        function renderMessages(messages) {
             const container = document.getElementById('chat-messages');
-            if(!appt.messages || appt.messages.length === 0) {
+            if(!messages || messages.length === 0) {
                 container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay mensajes aún. ¡Escribe el primero para coordinar!</p>`;
                 return;
             }
-            container.innerHTML = appt.messages.map(m => `
+            container.innerHTML = messages.map(m => `
                 <div class="flex flex-col animate-fade-in">
                     <span class="text-[10px] font-bold text-slate-400">${m.sender} <span class="text-[9px] font-normal">${m.time || ''}</span></span>
                     <div class="bg-blue-600 text-white text-xs p-3 rounded-2xl max-w-[85%] mt-1 shadow-sm leading-relaxed">${m.text}</div>
@@ -667,7 +676,7 @@
         }
     </script>
 
-    <!-- INTEGRADOR FIREBASE, GESTIÓN DE ROLES Y DETALLE DE USUARIOS ADMIN -->
+    <!-- INTEGRADOR FIREBASE, SINCRONIZACIÓN USERS/TUTORS Y TIEMPO REAL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -703,7 +712,6 @@
             document.getElementById('admin-count-students').innerText = totalStudents;
             document.getElementById('admin-count-tutors').innerText = totalTutors;
 
-            // Renderizar Lista Estudiantes
             const containerStudents = document.getElementById('admin-list-students');
             if (totalStudents === 0) {
                 containerStudents.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay estudiantes registrados aún.</p>`;
@@ -722,7 +730,6 @@
                 `).join('');
             }
 
-            // Renderizar Lista Tutores
             const containerTutors = document.getElementById('admin-list-tutors');
             if (totalTutors === 0) {
                 containerTutors.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay tutores registrados aún.</p>`;
@@ -745,7 +752,6 @@
             }
         }
 
-        // Escuchar 'students' en tiempo real
         onSnapshot(collection(db, "students"), (snapshot) => {
             registeredStudentsList = [];
             snapshot.forEach(docSnap => {
@@ -754,7 +760,6 @@
             updateAdminUI();
         });
 
-        // Escuchar 'tutors' en tiempo real
         onSnapshot(collection(db, "tutors"), (snapshot) => {
             registeredTutorsList = [];
             const fetchedTutors = [];
@@ -842,6 +847,29 @@
             renderTutorRequests();
         });
 
+        window.openChatModal = function(appointmentId) {
+            document.getElementById('chat-appointment-id').value = appointmentId;
+            const appt = appointments.find(a => String(a.id) === String(appointmentId));
+            if(!appt) return;
+
+            document.getElementById('chat-title').innerText = `Chat: ${appt.subject}`;
+            document.getElementById('chat-subtitle').innerText = `Estudiante: ${appt.studentName} | Tutor: ${appt.tutorName}`;
+            
+            document.getElementById('chat-modal').classList.remove('hidden');
+            document.getElementById('chat-modal').classList.add('flex');
+
+            if (window.activeChatUnsubscribe) {
+                window.activeChatUnsubscribe();
+            }
+
+            window.activeChatUnsubscribe = onSnapshot(doc(db, "appointments", appointmentId), (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    renderMessages(data.messages || []);
+                }
+            });
+        }
+
         window.confirmBooking = async function(e) {
             e.preventDefault();
             if (!currentUser || currentUserRole !== 'estudiante') {
@@ -895,21 +923,30 @@
         window.sendMessage = async function(e) {
             e.preventDefault();
             const appointmentId = document.getElementById('chat-appointment-id').value;
-            const text = document.getElementById('chat-input').value;
-            const appt = appointments.find(a => String(a.id) === String(appointmentId));
-            if(!appt) return;
+            const textInput = document.getElementById('chat-input');
+            const text = textInput.value.trim();
+            if(!text) return;
 
-            const senderName = currentUser ? currentUser.displayName : 'Usuario';
-            const updatedMessages = [...(appt.messages || []), { sender: senderName, text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
-
+            const apptRef = doc(db, "appointments", appointmentId);
+            
             try {
-                const apptRef = doc(db, "appointments", appointmentId);
+                const docSnap = await getDoc(apptRef);
+                if (!docSnap.exists()) return;
+                
+                const currentData = docSnap.data();
+                const senderName = currentUser ? currentUser.displayName : 'Usuario';
+                const newMessage = { 
+                    sender: senderName, 
+                    text: text, 
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                };
+
+                const updatedMessages = [...(currentData.messages || []), newMessage];
                 await updateDoc(apptRef, { messages: updatedMessages });
-                document.getElementById('chat-input').value = '';
-                appt.messages = updatedMessages;
-                renderMessages(appt);
+                textInput.value = '';
             } catch (error) {
                 console.error("Error al enviar mensaje:", error);
+                alert("Hubo un error al enviar el mensaje.");
             }
         };
 
@@ -933,9 +970,16 @@
             e.preventDefault();
             if (!currentUser) return;
 
+            const nameInput = document.getElementById('reg-name').value;
+
+            if (containsInappropriateName(nameInput)) {
+                alert("❌ El nombre ingresado contiene términos inapropiados o prohibidos. Por favor, utiliza tu nombre real.");
+                return;
+            }
+
             const tutorData = {
                 uid: currentUser.uid,
-                name: document.getElementById('reg-name').value,
+                name: nameInput,
                 subject: document.getElementById('reg-subject').value,
                 semester: document.getElementById('reg-semester').value,
                 price: parseFloat(document.getElementById('reg-price').value),
@@ -953,7 +997,18 @@
 
             try {
                 await setDoc(doc(db, "tutors", currentUser.uid), tutorData, { merge: true });
-                alert('¡Perfil de tutor actualizado con éxito!');
+
+                await setDoc(doc(db, "users", currentUser.uid), {
+                    uid: currentUser.uid,
+                    name: nameInput,
+                    email: currentUser.email,
+                    photo: currentUser.photoURL,
+                    role: 'tutor',
+                    subject: tutorData.subject,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+
+                alert('¡Perfil de tutor actualizado con éxito y sincronizado!');
             } catch (error) {
                 console.error("Error al actualizar el tutor:", error);
                 alert("Hubo un error al guardar tu perfil.");
@@ -989,6 +1044,13 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 
+                if (containsInappropriateName(user.displayName)) {
+                    alert("❌ Tu cuenta de Google contiene un nombre o término inapropiado, por lo que no se permite el registro en la plataforma.");
+                    await signOut(auth);
+                    closeAuthModal();
+                    return;
+                }
+
                 const oppositeCollection = selectedRole === 'estudiante' ? 'tutors' : 'students';
                 const oppositeRef = doc(db, oppositeCollection, user.uid);
                 const oppositeSnap = await getDoc(oppositeRef);
