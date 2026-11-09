@@ -1052,19 +1052,20 @@
                 }
 
                 const oppositeCollection = selectedRole === 'estudiante' ? 'tutors' : 'students';
+                const currentCollection = selectedRole === 'estudiante' ? 'students' : 'tutors';
+
                 const oppositeRef = doc(db, oppositeCollection, user.uid);
                 const oppositeSnap = await getDoc(oppositeRef);
 
+                const userRef = doc(db, currentCollection, user.uid);
+                const userSnap = await getDoc(userRef);
+
                 if (oppositeSnap.exists()) {
-                    alert(`Esta cuenta ya está registrada como ${selectedRole === 'estudiante' ? 'Tutor' : 'Estudiante'}. Debes cerrar sesión para ingresar con otro rol.`);
+                    alert(`Esta cuenta ya está registrada como ${selectedRole === 'estudiante' ? 'Tutor' : 'Estudiante'}. Estás intentando entrar con el rol incorrecto.`);
                     await signOut(auth);
                     closeAuthModal();
                     return;
                 }
-
-                const collectionName = selectedRole === 'estudiante' ? 'students' : 'tutors';
-                const userRef = doc(db, collectionName, user.uid);
-                const userSnap = await getDoc(userRef);
 
                 if (!userSnap.exists()) {
                     await setDoc(userRef, {
@@ -1076,7 +1077,9 @@
                         createdAt: new Date().toISOString()
                     });
                 }
+
                 closeAuthModal();
+                window.location.reload();
             } catch (error) {
                 console.error("Error en la autenticación:", error);
                 alert("Hubo un error al iniciar sesión.");
