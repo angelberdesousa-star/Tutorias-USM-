@@ -13,13 +13,25 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .hero-gradient { background: radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 60%); }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
         .active-tab { border-bottom: 3px solid #3b82f6; color: #1e3a8a; font-weight: 700; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes modalScale {
+            from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-modal { animation: modalScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
 
-    <!-- BARRA DE NAVEGACIÓN UNIVERSITARIA -->
+    <!-- BARRA DE NAVEGACIÓN -->
     <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center flex-wrap gap-4">
             <div class="flex items-center space-x-3">
@@ -40,15 +52,14 @@
 
     <!-- MODO ESTUDIANTE -->
     <main id="view-student" class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Hero Banner Llamativo -->
-        <section class="hero-gradient text-white rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl relative overflow-hidden border border-blue-900/50">
+        <!-- Hero Banner -->
+        <section class="hero-gradient text-white rounded-3xl p-6 sm:p-10 mb-8 shadow-2xl relative overflow-hidden border border-blue-900/50 animate-fade-in">
             <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="relative z-10 max-w-2xl">
                 <span class="inline-block bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4">Facultad de Ciencias Económicas y Sociales</span>
                 <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight mb-4">Domina tus materias y asegura tus notas</h2>
                 <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">Conecta con los mejores promedios de la USM. Agendar asesorías presenciales en el campus o virtuales nunca fue tan fácil.</p>
                 
-                <!-- Buscador Avanzado -->
                 <div class="bg-white p-2.5 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-2.5 text-slate-800">
                     <div class="flex-1 flex items-center px-4 bg-slate-50 rounded-xl border border-slate-200">
                         <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3"></i>
@@ -64,7 +75,7 @@
         </section>
 
         <!-- Filtros Rápidos de Materias -->
-        <section class="mb-8">
+        <section class="mb-8 animate-fade-in">
             <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3">Categorías Académicas Destacadas</h3>
             <div class="flex flex-wrap gap-2.5">
                 <button onclick="setCategoryFilter('all', event)" class="cat-btn active bg-blue-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-sm transition">Todas</button>
@@ -85,7 +96,7 @@
         </section>
 
         <!-- Mis Citas Agendadas -->
-        <section class="mt-12 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+        <section class="mt-12 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 animate-fade-in">
             <div class="flex items-center space-x-3 mb-6">
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold"><i class="fa-solid fa-calendar-check text-lg"></i></div>
                 <div>
@@ -110,8 +121,7 @@
             </button>
         </div>
 
-        <div id="tutor-content-requests">
-            <!-- Estadísticas del Tutor -->
+        <div id="tutor-content-requests" class="animate-fade-in">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center">
                     <div class="bg-amber-50 text-amber-600 w-12 h-12 rounded-2xl flex items-center justify-center mr-4 shadow-sm"><i class="fa-solid fa-clock text-xl"></i></div>
@@ -135,7 +145,7 @@
             </div>
         </div>
 
-        <div id="tutor-content-register" class="hidden max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
+        <div id="tutor-content-register" class="hidden max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80 animate-fade-in">
             <h3 class="text-xl font-extrabold text-slate-900 mb-2">Configura tu Perfil Profesional</h3>
             <p class="text-xs text-slate-500 mb-6">Actualiza tu información para que los estudiantes te encuentren fácilmente.</p>
             
@@ -193,7 +203,7 @@
 
     <!-- MODAL DE AGENDAMIENTO -->
     <div id="booking-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-modal">
             <button onclick="closeBookingModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
             
             <div class="flex items-center space-x-4 mb-6 pb-6 border-b border-slate-100">
@@ -256,7 +266,7 @@
 
     <!-- MODAL DE CHAT INTERNO -->
     <div id="chat-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[520px]">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[520px] animate-modal">
             <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
                 <div>
                     <h3 id="chat-title" class="font-extrabold text-base text-slate-900">Chat de Asesoría</h3>
@@ -265,7 +275,7 @@
                 <button onclick="closeChatModal()" class="text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="chat-messages" class="flex-grow overflow-y-auto space-y-3 pr-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <p class="text-center text-xs text-slate-400 py-6">Inicia la conversación para coordinar los detalles de tu clase.</p>
+                <p class="text-center text-xs text-slate-400 py-6 font-medium">No hay mensajes aún. ¡Escribe el primero para coordinar!</p>
             </div>
             <form onsubmit="sendMessage(event)" class="mt-4 flex gap-2">
                 <input type="hidden" id="chat-appointment-id">
@@ -277,7 +287,7 @@
 
     <!-- MODAL DE RESEÑA / CALIFICACIÓN -->
     <div id="review-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative animate-modal">
             <button onclick="closeReviewModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="font-extrabold text-xl text-slate-900 mb-1">Califica tu Tutoría</h3>
             <p id="review-tutor-subtitle" class="text-xs text-slate-500 mb-6"></p>
@@ -305,8 +315,8 @@
     </div>
 
     <!-- MODAL DE AUTENTICACIÓN GOOGLE / ROL -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative animate-modal">
             <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
             <div class="text-center mb-8">
                 <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
@@ -333,11 +343,53 @@
         </div>
     </div>
 
+    <!-- MODAL DE PANEL ADMIN / MÉTRICAS (Oculto para todos, solo abre con contraseña) -->
+    <div id="admin-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-8 shadow-2xl relative animate-modal">
+            <button onclick="closeAdminModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 bg-blue-900 text-white rounded-2xl flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-shield-halved"></i></div>
+                <div>
+                    <h3 class="text-xl font-black text-slate-900">Panel de Control Admin</h3>
+                    <p class="text-xs text-slate-500">Métricas exclusivas y privadas de la plataforma</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Total Usuarios</span>
+                    <span id="metric-total-users" class="text-3xl font-black text-slate-900">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Estudiantes</span>
+                    <span id="metric-total-students" class="text-3xl font-black text-indigo-600">0</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tutores Activos</span>
+                    <span id="metric-total-tutors" class="text-3xl font-black text-emerald-600">0</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex justify-between items-center text-xs font-bold mb-2">
+                    <span class="text-indigo-600" id="label-students-percent">Estudiantes: 0%</span>
+                    <span class="text-emerald-600" id="label-tutors-percent">Tutores: 0%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden flex">
+                    <div id="bar-students" class="bg-indigo-600 h-full transition-all duration-500" style="width: 50%;"></div>
+                    <div id="bar-tutors" class="bg-emerald-500 h-full transition-all duration-500" style="width: 50%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER CON ACCESO SECRETO ADMIN -->
     <footer class="bg-slate-900 text-slate-400 py-8 mt-16 border-t border-slate-800 text-center text-xs font-medium">
         <p>© 2026 Tutorías FACES - Universidad Santa María (Sede La Florencia)</p>
+        <button onclick="promptAdminAccess()" class="mt-2 text-slate-600 hover:text-slate-400 transition text-[10px] tracking-widest uppercase">Admin Panel</button>
     </footer>
 
-    <!-- LOGICA DE INTERFAZ Y RENDERIZADO -->
+    <!-- LOGICA DE INTERFAZ -->
     <script>
         let tutors = [];
         let appointments = [];
@@ -348,6 +400,22 @@
             const dateInput = document.getElementById('book-date');
             if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
         });
+
+        function promptAdminAccess() {
+            const pass = prompt("Introduce la contraseña de administrador:");
+            // Cambia "tu_clave_secreta_123" por la contraseña que tú desees usar
+            if (pass === "tu_clave_secreta_123") {
+                document.getElementById('admin-modal').classList.remove('hidden');
+                document.getElementById('admin-modal').classList.add('flex');
+            } else if (pass !== null) {
+                alert("Contraseña incorrecta.");
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.add('hidden');
+            document.getElementById('admin-modal').classList.remove('flex');
+        }
 
         function switchTutorTab(tab) {
             const reqContent = document.getElementById('tutor-content-requests');
@@ -383,12 +451,12 @@
             document.getElementById('tutor-count').innerText = `${filtered.length} tutor${filtered.length === 1 ? '' : 'es'} disponibles`;
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm"><p class="text-slate-500 text-sm font-medium">No se encontraron tutores con los filtros seleccionados.</p></div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm animate-fade-in"><p class="text-slate-500 text-sm font-medium">No se encontraron tutores con los filtros seleccionados.</p></div>`;
                 return;
             }
 
-            grid.innerHTML = filtered.map(t => `
-                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group">
+            grid.innerHTML = filtered.map((t, index) => `
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group animate-fade-in" style="animation-delay: ${index * 0.08}s;">
                     <div class="p-6">
                         <div class="flex items-start justify-between mb-5">
                             <div class="flex items-center space-x-3.5">
@@ -489,7 +557,7 @@
                 return;
             }
             container.innerHTML = appt.messages.map(m => `
-                <div class="flex flex-col">
+                <div class="flex flex-col animate-fade-in">
                     <span class="text-[10px] font-bold text-slate-400">${m.sender} <span class="text-[9px] font-normal">${m.time || ''}</span></span>
                     <div class="bg-blue-600 text-white text-xs p-3 rounded-2xl max-w-[85%] mt-1 shadow-sm leading-relaxed">${m.text}</div>
                 </div>
@@ -517,7 +585,7 @@
                 return;
             }
             container.innerHTML = `<div class="space-y-4">${appointments.map(a => `
-                <div class="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/60 flex justify-between items-center flex-wrap gap-4">
+                <div class="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/60 flex justify-between items-center flex-wrap gap-4 animate-fade-in">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
                             <span class="font-extrabold text-slate-900 text-sm">${a.subject}</span>
@@ -550,7 +618,7 @@
                 return;
             }
             container.innerHTML = `<div class="space-y-4">${appointments.map(a => `
-                <div class="p-5 rounded-2xl border border-slate-200/80 bg-white flex justify-between items-center flex-wrap gap-4 shadow-sm">
+                <div class="p-5 rounded-2xl border border-slate-200/80 bg-white flex justify-between items-center flex-wrap gap-4 shadow-sm animate-fade-in">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
                             <span class="font-extrabold text-slate-900 text-sm">${a.studentName}</span>
@@ -570,7 +638,7 @@
         }
     </script>
 
-    <!-- INTEGRADOR FIREBASE Y GESTIÓN DE ROLES -->
+    <!-- INTEGRADOR FIREBASE, GESTIÓN DE ROLES Y MÉTRICAS ADMIN -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -592,8 +660,39 @@
 
         let selectedRole = 'estudiante';
         let currentUser = null;
+        let totalStudentsCount = 0;
+        let totalTutorsCount = 0;
+
+        function updateMetricsUI() {
+            const totalUsers = totalStudentsCount + totalTutorsCount;
+            document.getElementById('metric-total-users').innerText = totalUsers;
+            document.getElementById('metric-total-students').innerText = totalStudentsCount;
+            document.getElementById('metric-total-tutors').innerText = totalTutorsCount;
+
+            let studentPercent = 0;
+            let tutorPercent = 0;
+
+            if (totalUsers > 0) {
+                studentPercent = Math.round((totalStudentsCount / totalUsers) * 100);
+                tutorPercent = 100 - studentPercent;
+            }
+
+            document.getElementById('label-students-percent').innerText = `Estudiantes: ${studentPercent}%`;
+            document.getElementById('label-tutors-percent').innerText = `Tutores: ${tutorPercent}%`;
+
+            document.getElementById('bar-students').style.width = `${studentPercent}%`;
+            document.getElementById('bar-tutors').style.width = `${tutorPercent}%`;
+        }
+
+        onSnapshot(collection(db, "students"), (snapshot) => {
+            totalStudentsCount = snapshot.size;
+            updateMetricsUI();
+        });
 
         onSnapshot(collection(db, "tutors"), (snapshot) => {
+            totalTutorsCount = snapshot.size;
+            updateMetricsUI();
+
             const fetchedTutors = [];
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
@@ -878,7 +977,7 @@
                 }
 
                 authContainer.innerHTML = `
-                    <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm animate-fade-in">
                         <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200" alt="Perfil">
                         <div class="hidden sm:block text-right">
                             <span class="block text-xs font-bold text-slate-800 leading-tight">${user.displayName}</span>
