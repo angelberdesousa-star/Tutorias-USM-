@@ -8,129 +8,146 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
-        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: bold; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .hero-gradient { background: radial-gradient(circle at top right, #1e3a8a 0%, #0f172a 60%); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .active-tab { border-bottom: 3px solid #3b82f6; color: #1e3a8a; font-weight: 700; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
 
-    <!-- BARRA DE NAVEGACIÓN -->
-    <header class="bg-white shadow-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-3">
+    <!-- BARRA DE NAVEGACIÓN UNIVERSITARIA -->
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center flex-wrap gap-4">
             <div class="flex items-center space-x-3">
-                <div class="bg-blue-900 text-white p-2 rounded-lg font-bold text-xl tracking-wider">USM</div>
+                <div class="bg-gradient-to-tr from-blue-900 to-blue-600 text-white w-11 h-11 rounded-xl flex items-center justify-center font-black text-xl shadow-md shadow-blue-900/20">USM</div>
                 <div>
-                    <h1 class="font-bold text-lg leading-none text-blue-950">Tutorías FACES</h1>
-                    <span class="text-xs text-gray-500">Campus La Florencia</span>
+                    <h1 class="font-extrabold text-base sm:text-lg leading-tight text-slate-900 tracking-tight">Tutorías FACES</h1>
+                    <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Campus La Florencia</span>
                 </div>
             </div>
 
-            <!-- Autenticación y Estado de Sesión -->
             <div id="auth-container" class="flex items-center space-x-3">
-                <button onclick="openAuthModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm flex items-center gap-2">
+                <button onclick="openAuthModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-900/10 flex items-center gap-2">
                     <i class="fa-brands fa-google"></i> Iniciar Sesión / Registrarse
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MODO ESTUDIANTE (Visible solo para estudiantes o invitados) -->
-    <main id="view-student" class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
-        <!-- Hero Banner -->
-        <section class="gradient-bg text-white rounded-2xl p-6 md:p-8 mb-8 shadow-lg relative overflow-hidden">
+    <!-- MODO ESTUDIANTE -->
+    <main id="view-student" class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Hero Banner Llamativo -->
+        <section class="hero-gradient text-white rounded-3xl p-6 sm:p-10 mb-10 shadow-2xl relative overflow-hidden border border-blue-900/50">
+            <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="relative z-10 max-w-2xl">
-                <span class="bg-blue-800 text-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">FACES - USM</span>
-                <h2 class="text-2xl md:text-4xl font-extrabold mt-2 mb-3">Refuerza tus conocimientos para los parciales</h2>
-                <p class="text-blue-100 text-sm md:text-base mb-6">Agenda tutorías presenciales dentro del campus o virtuales con los estudiantes con mejores promedios de la facultad.</p>
-                <div class="bg-white p-2 rounded-xl shadow-md flex flex-col md:flex-row gap-2 text-gray-800">
-                    <div class="flex-1 flex items-center px-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <i class="fa-solid fa-magnifying-glass text-gray-400 mr-2"></i>
-                        <input type="text" id="search-input" onkeyup="filterTutors()" placeholder="¿Qué materia buscas? (ej. Contabilidad, Cálculo...)" class="w-full bg-transparent py-2 text-sm focus:outline-none">
+                <span class="inline-block bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4">Facultad de Ciencias Económicas y Sociales</span>
+                <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight mb-4">Domina tus materias y asegura tus notas</h2>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">Conecta con los mejores promedios de la USM. Agendar asesorías presenciales en el campus o virtuales nunca fue tan fácil.</p>
+                
+                <!-- Buscador Avanzado -->
+                <div class="bg-white p-2.5 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-2.5 text-slate-800">
+                    <div class="flex-1 flex items-center px-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3"></i>
+                        <input type="text" id="search-input" onkeyup="filterTutors()" placeholder="¿Qué materia o tutor buscas?" class="w-full bg-transparent py-2.5 text-sm font-medium focus:outline-none">
                     </div>
-                    <select id="modality-filter" onchange="filterTutors()" class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none">
-                        <option value="all">Todas las modalidades</option>
-                        <option value="Presencial">Presencial (Campus USM)</option>
-                        <option value="Online">Online (Google Meet / Classroom)</option>
+                    <select id="modality-filter" onchange="filterTutors()" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer">
+                        <option value="all">🌐 Todas las modalidades</option>
+                        <option value="Presencial">🏫 Presencial (Campus)</option>
+                        <option value="Online">💻 Online (Meet)</option>
                     </select>
                 </div>
             </div>
         </section>
 
-        <!-- Filtros Rápidos -->
-        <section class="mb-6">
-            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Materias con alta demanda en FACES</h3>
-            <div class="flex flex-wrap gap-2">
-                <button onclick="setCategoryFilter('all', event)" class="cat-btn active bg-blue-900 text-white px-4 py-1.5 rounded-full text-xs font-semibold">Todas</button>
-                <button onclick="setCategoryFilter('Contabilidad II', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Contabilidad II</button>
-                <button onclick="setCategoryFilter('Matemática III', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Matemática III</button>
-                <button onclick="setCategoryFilter('Estadística I', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Estadística I</button>
-                <button onclick="setCategoryFilter('Finanzas', event)" class="cat-btn bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-semibold hover:border-blue-500">Finanzas</button>
+        <!-- Filtros Rápidos de Materias -->
+        <section class="mb-8">
+            <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3">Categorías Académicas Destacadas</h3>
+            <div class="flex flex-wrap gap-2.5">
+                <button onclick="setCategoryFilter('all', event)" class="cat-btn active bg-blue-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-sm transition">Todas</button>
+                <button onclick="setCategoryFilter('Contabilidad II', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Contabilidad II</button>
+                <button onclick="setCategoryFilter('Matemática III', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Matemática III</button>
+                <button onclick="setCategoryFilter('Estadística I', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Estadística I</button>
+                <button onclick="setCategoryFilter('Finanzas', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Finanzas</button>
             </div>
         </section>
 
-        <!-- Lista de Tutores -->
-        <section>
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-900">Tutores Disponibles</h3>
-                <span id="tutor-count" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full">Cargando tutores...</span>
+        <!-- Cuadrícula de Tutores -->
+        <section class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-extrabold text-slate-900">Expertos Disponibles</h3>
+                <span id="tutor-count" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 font-bold px-3 py-1.5 rounded-xl">Cargando tutores...</span>
             </div>
             <div id="tutors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- Mis Citas Agendadas y Reseñas (Solo visible si es estudiante) -->
-        <section id="student-appointments-section" class="mt-12">
-            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fa-solid fa-calendar-check text-blue-600 mr-2"></i> Mis Citas Agendadas y Calificaciones
-            </h3>
-            <div id="student-appointments" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4">
-                <p class="text-gray-500 text-center py-6 text-sm">Inicia sesión como estudiante para ver tus citas agendadas.</p>
+        <!-- Mis Citas Agendadas -->
+        <section class="mt-12 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold"><i class="fa-solid fa-calendar-check text-lg"></i></div>
+                <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Mis Citas Agendadas y Calificaciones</h3>
+                    <p class="text-xs text-slate-500">Historial y estado de tus asesorías solicitadas</p>
+                </div>
+            </div>
+            <div id="student-appointments">
+                <p class="text-slate-400 text-center py-8 text-sm">Inicia sesión como estudiante para ver tus citas agendadas.</p>
             </div>
         </section>
     </main>
 
-    <!-- MODO TUTOR (Visible solo si estás autenticado como Tutor) -->
-    <main id="view-tutor" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
-        <div class="flex border-b border-gray-200 mb-6">
-            <button id="tab-requests" onclick="switchTutorTab('requests')" class="px-4 py-2 font-medium text-sm active-tab">
-                <i class="fa-solid fa-inbox mr-1"></i> Solicitudes Recibidas y Agenda
+    <!-- MODO TUTOR -->
+    <main id="view-tutor" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="flex border-b border-slate-200 mb-8">
+            <button id="tab-requests" onclick="switchTutorTab('requests')" class="px-6 py-3 font-bold text-sm active-tab transition flex items-center gap-2">
+                <i class="fa-solid fa-inbox"></i> Solicitudes y Agenda
             </button>
-            <button id="tab-register" onclick="switchTutorTab('register')" class="px-4 py-2 font-medium text-sm text-gray-500 hover:text-gray-700">
-                <i class="fa-solid fa-user-pen mr-1"></i> Editar Mi Perfil de Tutor
+            <button id="tab-register" onclick="switchTutorTab('register')" class="px-6 py-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-user-pen"></i> Editar Mi Perfil Docente
             </button>
         </div>
 
         <div id="tutor-content-requests">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center">
-                    <div class="bg-blue-100 text-blue-600 p-3 rounded-lg mr-3"><i class="fa-solid fa-clock text-xl"></i></div>
-                    <div><div class="text-xs text-gray-500 font-bold uppercase">Pendientes</div><div id="stat-pending" class="text-2xl font-black text-gray-800">0</div></div>
+            <!-- Estadísticas del Tutor -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center">
+                    <div class="bg-amber-50 text-amber-600 w-12 h-12 rounded-2xl flex items-center justify-center mr-4 shadow-sm"><i class="fa-solid fa-clock text-xl"></i></div>
+                    <div><div class="text-xs text-slate-400 font-extrabold uppercase tracking-wider">Pendientes</div><div id="stat-pending" class="text-3xl font-black text-slate-900 mt-1">0</div></div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center">
-                    <div class="bg-green-100 text-green-600 p-3 rounded-lg mr-3"><i class="fa-solid fa-circle-check text-xl"></i></div>
-                    <div><div class="text-xs text-gray-500 font-bold uppercase">Confirmadas</div><div id="stat-confirmed" class="text-2xl font-black text-gray-800">0</div></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center">
+                    <div class="bg-emerald-50 text-emerald-600 w-12 h-12 rounded-2xl flex items-center justify-center mr-4 shadow-sm"><i class="fa-solid fa-circle-check text-xl"></i></div>
+                    <div><div class="text-xs text-slate-400 font-extrabold uppercase tracking-wider">Confirmadas</div><div id="stat-confirmed" class="text-3xl font-black text-slate-900 mt-1">0</div></div>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center">
-                    <div class="bg-purple-100 text-purple-600 p-3 rounded-lg mr-3"><i class="fa-solid fa-dollar-sign text-xl"></i></div>
-                    <div><div class="text-xs text-gray-500 font-bold uppercase">Ganancias Est.</div><div id="stat-earnings" class="text-2xl font-black text-gray-800">$0.00</div></div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center">
+                    <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center mr-4 shadow-sm"><i class="fa-solid fa-dollar-sign text-xl"></i></div>
+                    <div><div class="text-xs text-slate-400 font-extrabold uppercase tracking-wider">Ganancias Est.</div><div id="stat-earnings" class="text-3xl font-black text-slate-900 mt-1">$0.00</div></div>
                 </div>
             </div>
-            <div id="tutor-requests-list" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                <p class="text-gray-500 text-center py-6 text-sm">Cargando solicitudes...</p>
+
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                <h3 class="text-lg font-extrabold text-slate-900 mb-6">Solicitudes de Estudiantes</h3>
+                <div id="tutor-requests-list">
+                    <p class="text-slate-400 text-center py-8 text-sm">Cargando solicitudes...</p>
+                </div>
             </div>
         </div>
 
-        <div id="tutor-content-register" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-lg font-bold text-gray-800 mb-1">Actualiza tu Perfil de Tutor en FACES USM</h3>
-            <form id="tutor-register-form" onsubmit="handleTutorRegister(event)" class="space-y-4">
+        <div id="tutor-content-register" class="hidden max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200/80">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Configura tu Perfil Profesional</h3>
+            <p class="text-xs text-slate-500 mb-6">Actualiza tu información para que los estudiantes te encuentren fácilmente.</p>
+            
+            <form id="tutor-register-form" onsubmit="handleTutorRegister(event)" class="space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo</label>
-                    <input type="text" required id="reg-name" placeholder="Ej. Carlos Mendoza" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nombre Completo</label>
+                    <input type="text" required id="reg-name" placeholder="Ej. Carlos Mendoza" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Asignatura Principal</label>
-                        <select required id="reg-subject" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Asignatura Principal</label>
+                        <select required id="reg-subject" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                             <option value="Contabilidad II">Contabilidad II</option>
                             <option value="Matemática III">Matemática III</option>
                             <option value="Estadística I">Estadística I</option>
@@ -138,136 +155,139 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Semestre / Carrera</label>
-                        <input type="text" required id="reg-semester" placeholder="Ej. 8vo Semestre" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Semestre / Carrera</label>
+                        <input type="text" required id="reg-semester" placeholder="Ej. 8vo Semestre" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tarifa por Hora ($)</label>
-                        <input type="number" required id="reg-price" min="1" step="0.5" placeholder="10" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tarifa por Hora ($)</label>
+                        <input type="number" required id="reg-price" min="1" step="0.5" placeholder="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Modalidad</label>
-                        <select id="reg-modality" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Modalidad</label>
+                        <select id="reg-modality" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                             <option value="Presencial y Online">Presencial y Online</option>
                             <option value="Presencial">Solo Presencial</option>
                         </select>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Días Disponibles</label>
-                        <input type="text" required id="reg-days" placeholder="Ej. Lunes a Miércoles" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Días Disponibles</label>
+                        <input type="text" required id="reg-days" placeholder="Ej. Lunes a Miércoles" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Horario (Franja)</label>
-                        <input type="text" required id="reg-hours" placeholder="Ej. 9:00 AM - 1:00 PM" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Horario (Franja)</label>
+                        <input type="text" required id="reg-hours" placeholder="Ej. 9:00 AM - 1:00 PM" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Biografía</label>
-                    <textarea id="reg-bio" rows="3" placeholder="Metodología..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600"></textarea>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Biografía o Metodología</label>
+                    <textarea id="reg-bio" rows="3" placeholder="Explica tu experiencia..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-blue-800 transition shadow">Guardar Cambios de Perfil</button>
+                <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-blue-900/20">Guardar Cambios de Perfil</button>
             </form>
         </div>
     </main>
 
-    <!-- MODAL DE AGENDAMIENTO (Solo para Estudiantes) -->
-    <div id="booking-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            <div class="flex items-center space-x-3 mb-4">
-                <img id="modal-tutor-img" src="" class="w-12 h-12 rounded-full object-cover border border-blue-900">
+    <!-- MODAL DE AGENDAMIENTO -->
+    <div id="booking-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeBookingModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="flex items-center space-x-4 mb-6 pb-6 border-b border-slate-100">
+                <img id="modal-tutor-img" src="" class="w-14 h-14 rounded-2xl object-cover border-2 border-blue-900 shadow-sm">
                 <div>
-                    <h3 id="modal-tutor-name" class="font-bold text-lg text-gray-900 leading-tight"></h3>
-                    <span id="modal-tutor-subject" class="text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded"></span>
-                    <div id="modal-tutor-availability" class="text-xs text-emerald-700 font-medium mt-1"><i class="fa-regular fa-clock mr-1"></i><span></span></div>
+                    <h3 id="modal-tutor-name" class="font-bold text-lg text-slate-900 leading-tight"></h3>
+                    <span id="modal-tutor-subject" class="inline-block text-xs bg-blue-50 text-blue-700 font-bold px-2.5 py-0.5 rounded-lg mt-1"></span>
+                    <div id="modal-tutor-availability" class="text-xs text-emerald-600 font-semibold mt-1"><i class="fa-regular fa-clock mr-1"></i><span></span></div>
                 </div>
             </div>
+
             <form id="booking-form" onsubmit="confirmBooking(event)" class="space-y-4">
                 <input type="hidden" id="modal-tutor-id">
                 <input type="hidden" id="modal-tutor-uid">
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Fecha</label>
-                        <input type="date" required id="book-date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Fecha</label>
+                        <input type="date" required id="book-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Hora</label>
-                        <input type="time" required id="book-time" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Hora</label>
+                        <input type="time" required id="book-time" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Modalidad</label>
-                    <select id="book-modality" onchange="toggleLocationField()" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Modalidad</label>
+                    <select id="book-modality" onchange="toggleLocationField()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600">
                         <option value="Presencial">Presencial (Campus USM)</option>
                         <option value="Online">Online (Google Meet / Classroom)</option>
                     </select>
                 </div>
                 <div id="location-container">
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Punto de Encuentro</label>
-                    <select id="book-location" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Punto de Encuentro</label>
+                    <select id="book-location" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600">
                         <option value="Biblioteca Central FACES">Biblioteca Central FACES</option>
                         <option value="Mesas de Estudio (Piso 2)">Mesas de Estudio (Piso 2)</option>
                         <option value="Feria / Cafetería Principal">Feria / Cafetería Principal</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tu Nombre</label>
-                    <input type="text" required id="book-student-name" placeholder="Tu nombre" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tu Nombre Completo</label>
+                    <input type="text" required id="book-student-name" placeholder="Ej. María Pérez" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Método de Pago</label>
-                    <div class="grid grid-cols-3 gap-2 text-xs">
-                        <label class="border rounded-lg p-2 flex flex-col items-center cursor-pointer"><input type="radio" name="payment" value="Pago Móvil" checked class="mb-1"><span>Pago Móvil</span></label>
-                        <label class="border rounded-lg p-2 flex flex-col items-center cursor-pointer"><input type="radio" name="payment" value="Zelle" class="mb-1"><span>Zelle</span></label>
-                        <label class="border rounded-lg p-2 flex flex-col items-center cursor-pointer"><input type="radio" name="payment" value="Efectivo ($)" class="mb-1"><span>Efectivo ($)</span></label>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Método de Pago Preferido</label>
+                    <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                        <label class="border-2 border-blue-900 bg-blue-50/50 rounded-xl p-3 flex flex-col items-center cursor-pointer"><input type="radio" name="payment" value="Pago Móvil" checked class="mb-1.5"><span>Pago Móvil</span></label>
+                        <label class="border-2 border-slate-200 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:border-slate-300"><input type="radio" name="payment" value="Zelle" class="mb-1.5"><span>Zelle</span></label>
+                        <label class="border-2 border-slate-200 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:border-slate-300"><input type="radio" name="payment" value="Efectivo ($)" class="mb-1.5"><span>Efectivo ($)</span></label>
                     </div>
                 </div>
-                <div class="bg-gray-50 p-3 rounded-lg flex justify-between items-center text-sm">
-                    <span class="text-gray-600 font-medium">Total:</span>
-                    <span id="modal-total-price" class="font-extrabold text-blue-900 text-lg">$0.00</span>
+                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center text-sm border border-slate-200/80">
+                    <span class="text-slate-600 font-semibold">Total a cancelar:</span>
+                    <span id="modal-total-price" class="font-black text-blue-900 text-xl">$0.00</span>
                 </div>
-                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3 rounded-xl hover:bg-blue-800 transition shadow-lg">Confirmar Tutoría</button>
+                <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-900/20 text-sm">Confirmar y Enviar Solicitud</button>
             </form>
         </div>
     </div>
 
     <!-- MODAL DE CHAT INTERNO -->
-    <div id="chat-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[500px]">
-            <div class="flex justify-between items-center border-b pb-3 mb-3">
+    <div id="chat-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative flex flex-col h-[520px]">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
                 <div>
-                    <h3 id="chat-title" class="font-bold text-base text-gray-900">Chat de Tutoría</h3>
-                    <span id="chat-subtitle" class="text-xs text-gray-500"></span>
+                    <h3 id="chat-title" class="font-extrabold text-base text-slate-900">Chat de Asesoría</h3>
+                    <span id="chat-subtitle" class="text-xs font-medium text-slate-500"></span>
                 </div>
-                <button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeChatModal()" class="text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div id="chat-messages" class="flex-grow overflow-y-auto space-y-3 pr-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                <p class="text-center text-xs text-gray-400 py-4">Inicia la conversación para coordinar los detalles de tu clase.</p>
+            <div id="chat-messages" class="flex-grow overflow-y-auto space-y-3 pr-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <p class="text-center text-xs text-slate-400 py-6">Inicia la conversación para coordinar los detalles de tu clase.</p>
             </div>
-            <form onsubmit="sendMessage(event)" class="mt-3 flex gap-2">
+            <form onsubmit="sendMessage(event)" class="mt-4 flex gap-2">
                 <input type="hidden" id="chat-appointment-id">
-                <input type="text" id="chat-input" required placeholder="Escribe un mensaje..." class="flex-grow border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-600">
-                <button type="submit" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-800 transition"><i class="fa-solid fa-paper-plane"></i></button>
+                <input type="text" id="chat-input" required placeholder="Escribe un mensaje..." class="flex-grow bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-600">
+                <button type="submit" class="bg-blue-900 text-white px-5 py-3 rounded-xl text-sm font-bold hover:bg-blue-800 transition shadow-md shadow-blue-900/10"><i class="fa-solid fa-paper-plane"></i></button>
             </form>
         </div>
     </div>
 
     <!-- MODAL DE RESEÑA / CALIFICACIÓN -->
-    <div id="review-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="font-bold text-lg text-gray-900 mb-2">Califica tu Tutoría</h3>
-            <p id="review-tutor-subtitle" class="text-xs text-gray-500 mb-4"></p>
-            <form onsubmit="submitReview(event)" class="space-y-4">
+    <div id="review-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
+            <button onclick="closeReviewModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-extrabold text-xl text-slate-900 mb-1">Califica tu Tutoría</h3>
+            <p id="review-tutor-subtitle" class="text-xs text-slate-500 mb-6"></p>
+            
+            <form onsubmit="submitReview(event)" class="space-y-5">
                 <input type="hidden" id="review-appointment-id">
                 <input type="hidden" id="review-tutor-id">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Calificación (Estrellas)</label>
-                    <select id="review-rating" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Calificación (Estrellas)</label>
+                    <select id="review-rating" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-blue-600">
                         <option value="5">⭐⭐⭐⭐⭐ (5 - Excelente)</option>
                         <option value="4">⭐⭐⭐⭐ (4 - Muy bueno)</option>
                         <option value="3">⭐⭐⭐ (3 - Bueno)</option>
@@ -276,45 +296,44 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Comentario / Reseña</label>
-                    <textarea id="review-comment" required rows="3" placeholder="Explica qué tal te pareció la clase..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600"></textarea>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Comentario / Reseña Escrita</label>
+                    <textarea id="review-comment" required rows="3" placeholder="¿Qué tal te pareció la explicación del tutor?" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-600"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-xl hover:bg-blue-800 transition shadow">Enviar Reseña</button>
+                <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-blue-900/20">Enviar Calificación</button>
             </form>
         </div>
     </div>
 
     <!-- MODAL DE AUTENTICACIÓN GOOGLE / ROL -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-            <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-            <div class="text-center mb-6">
-                <h3 class="text-2xl font-bold text-slate-900">Únete a Tutorías USM</h3>
-                <p class="text-sm text-slate-500 mt-1">Selecciona tu rol y continúa con tu cuenta de Google</p>
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center mb-8">
+                <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-sm"><i class="fa-solid fa-graduation-cap"></i></div>
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight">Acceso a Tutorías USM</h3>
+                <p class="text-sm text-slate-500 mt-1">Selecciona tu perfil universitario para continuar</p>
             </div>
             
-            <div class="mb-6">
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">¿Cómo deseas registrarte?</label>
+            <div class="mb-8">
+                <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-3 text-center">¿Cuál es tu rol en la plataforma?</label>
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" id="role-student" onclick="setRole('estudiante')" class="py-3 px-4 rounded-xl border-2 font-medium text-sm transition border-blue-900 bg-blue-50 text-blue-900">
-                        Estudiante
+                    <button type="button" id="role-student" onclick="setRole('estudiante')" class="py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-blue-900 bg-blue-50 text-blue-900 shadow-sm">
+                        <i class="fa-solid fa-user-graduate block text-lg mb-1"></i> Estudiante
                     </button>
-                    <button type="button" id="role-tutor" onclick="setRole('tutor')" class="py-3 px-4 rounded-xl border-2 font-medium text-sm transition border-slate-200 text-slate-600 hover:border-slate-300">
-                        Tutor
+                    <button type="button" id="role-tutor" onclick="setRole('tutor')" class="py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-slate-200 text-slate-500 hover:border-slate-300">
+                        <i class="fa-solid fa-chalkboard-user block text-lg mb-1"></i> Tutor
                     </button>
                 </div>
             </div>
 
-            <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-xl transition shadow-sm">
+            <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-bold py-3.5 px-4 rounded-2xl transition shadow-sm">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
                 Continuar con Google
             </button>
         </div>
     </div>
 
-    <footer class="bg-gray-900 text-gray-400 py-6 mt-12 text-center text-xs">
+    <footer class="bg-slate-900 text-slate-400 py-8 mt-16 border-t border-slate-800 text-center text-xs font-medium">
         <p>© 2026 Tutorías FACES - Universidad Santa María (Sede La Florencia)</p>
     </footer>
 
@@ -323,7 +342,7 @@
         let tutors = [];
         let appointments = [];
         let activeCategory = 'all';
-        let currentUserRole = null; // 'estudiante' o 'tutor'
+        let currentUserRole = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             const dateInput = document.getElementById('book-date');
@@ -339,13 +358,13 @@
             if (tab === 'requests') {
                 reqContent.classList.remove('hidden');
                 regContent.classList.add('hidden');
-                tabReq.className = "px-4 py-2 font-medium text-sm active-tab";
-                tabReg.className = "px-4 py-2 font-medium text-sm text-gray-500 hover:text-gray-700";
+                tabReq.className = "px-6 py-3 font-bold text-sm active-tab transition flex items-center gap-2";
+                tabReg.className = "px-6 py-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition flex items-center gap-2";
             } else {
                 reqContent.classList.add('hidden');
                 regContent.classList.remove('hidden');
-                tabReg.className = "px-4 py-2 font-medium text-sm active-tab";
-                tabReq.className = "px-4 py-2 font-medium text-sm text-gray-500 hover:text-gray-700";
+                tabReg.className = "px-6 py-3 font-bold text-sm active-tab transition flex items-center gap-2";
+                tabReq.className = "px-6 py-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition flex items-center gap-2";
             }
         }
 
@@ -361,41 +380,40 @@
                 return matchesSearch && matchesModality && matchesCategory;
             });
 
-            document.getElementById('tutor-count').innerText = `${filtered.length} tutor${filtered.length === 1 ? '' : 'es'}`;
+            document.getElementById('tutor-count').innerText = `${filtered.length} tutor${filtered.length === 1 ? '' : 'es'} disponibles`;
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300"><p class="text-gray-500 text-sm">No se encontraron tutores disponibles en este momento.</p></div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm"><p class="text-slate-500 text-sm font-medium">No se encontraron tutores con los filtros seleccionados.</p></div>`;
                 return;
             }
 
             grid.innerHTML = filtered.map(t => `
-                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col justify-between">
-                    <div class="p-5">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex items-center space-x-3">
-                                <img src="${t.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}" alt="${t.name}" class="w-14 h-14 rounded-full object-cover border-2 border-blue-900 shadow-sm">
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-5">
+                            <div class="flex items-center space-x-3.5">
+                                <img src="${t.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}" alt="${t.name}" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md group-hover:scale-105 transition">
                                 <div>
-                                    <h4 class="font-bold text-gray-900 leading-tight">${t.name}</h4>
-                                    <span class="text-xs text-gray-500">${t.semester || 'Tutor USM'}</span>
-                                    <div class="text-xs text-amber-600 font-bold mt-0.5"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} (${t.reviews || 1} reseñas)</div>
+                                    <h4 class="font-extrabold text-slate-900 text-base leading-tight">${t.name}</h4>
+                                    <span class="text-xs font-medium text-slate-500">${t.semester || 'Tutor USM'}</span>
+                                    <div class="text-xs text-amber-500 font-extrabold mt-1 flex items-center gap-1"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} <span class="text-slate-400 font-medium">(${t.reviews || 1} reseñas)</span></div>
                                 </div>
                             </div>
-                            <span class="bg-blue-50 text-blue-900 font-extrabold text-sm px-2.5 py-1 rounded-lg border border-blue-100">$${t.price || 10}/h</span>
+                            <span class="bg-blue-50 text-blue-900 font-black text-sm px-3 py-1.5 rounded-xl border border-blue-100">$${t.price || 10}/h</span>
                         </div>
-                        <div class="mb-3">
-                            <span class="inline-block bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full mb-2">${t.subject}</span>
-                            <div class="text-xs text-emerald-700 font-medium bg-emerald-50 px-2.5 py-1 rounded-lg mb-2 border border-emerald-100">
-                                <i class="fa-regular fa-clock mr-1"></i> ${t.days || 'Consultar'}: ${t.hours || 'Horario a convenir'}
+                        <div class="space-y-3">
+                            <span class="inline-block bg-blue-100/80 text-blue-900 text-xs font-bold px-3 py-1 rounded-xl">${t.subject}</span>
+                            <div class="text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 flex items-center gap-2">
+                                <i class="fa-regular fa-clock"></i> <span>${t.days || 'Consultar'}: ${t.hours || 'Horario flexible'}</span>
                             </div>
-                            <p class="text-xs text-gray-600 line-clamp-3 leading-relaxed">${t.bio || 'Sin biografía disponible.'}</p>
+                            <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">${t.bio || 'Sin biografía disponible.'}</p>
                         </div>
                     </div>
-                    <!-- Si es tutor, no puede agendar citas; se muestra un aviso decorativo -->
-                    <div class="p-4 bg-gray-50 border-t border-gray-100">
+                    <div class="p-5 bg-slate-50/80 border-t border-slate-100">
                         ${currentUserRole === 'tutor' ? 
-                            `<span class="block text-center text-xs text-gray-400 font-medium py-2">Vista de Tutor (No disponible para agendar)</span>` : 
-                            `<button onclick="openBookingModal('${t.id}')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center">
-                                <i class="fa-solid fa-calendar-plus mr-1.5"></i> Agendar Tutoría
+                            `<span class="block text-center text-xs text-slate-400 font-semibold py-2">Vista de Tutor (Solo lectura)</span>` : 
+                            `<button onclick="openBookingModal('${t.id}')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-blue-900/10 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-calendar-plus"></i> Agendar Tutoría
                             </button>`
                         }
                     </div>
@@ -409,10 +427,10 @@
             activeCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 btn.classList.remove('bg-blue-900', 'text-white');
-                btn.classList.add('bg-white', 'text-gray-700');
+                btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
             });
             if(e && e.target) {
-                e.target.classList.remove('bg-white', 'text-gray-700');
+                e.target.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
                 e.target.classList.add('bg-blue-900', 'text-white');
             }
             renderTutors();
@@ -433,9 +451,13 @@
             document.getElementById('modal-tutor-availability').querySelector('span').innerText = `${tutor.days || 'Días a convenir'} (${tutor.hours || 'Horarios a convenir'})`;
             document.getElementById('modal-total-price').innerText = `$${tutor.price || 10}.00`;
             document.getElementById('booking-modal').classList.remove('hidden');
+            document.getElementById('booking-modal').classList.add('flex');
         }
 
-        function closeBookingModal() { document.getElementById('booking-modal').classList.add('hidden'); }
+        function closeBookingModal() { 
+            document.getElementById('booking-modal').classList.add('hidden');
+            document.getElementById('booking-modal').classList.remove('flex');
+        }
 
         function toggleLocationField() {
             const modality = document.getElementById('book-modality').value;
@@ -452,20 +474,24 @@
             document.getElementById('chat-subtitle').innerText = `Estudiante: ${appt.studentName} | Tutor: ${appt.tutorName}`;
             renderMessages(appt);
             document.getElementById('chat-modal').classList.remove('hidden');
+            document.getElementById('chat-modal').classList.add('flex');
         }
 
-        function closeChatModal() { document.getElementById('chat-modal').classList.add('hidden'); }
+        function closeChatModal() { 
+            document.getElementById('chat-modal').classList.add('hidden');
+            document.getElementById('chat-modal').classList.remove('flex');
+        }
 
         function renderMessages(appt) {
             const container = document.getElementById('chat-messages');
             if(!appt.messages || appt.messages.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-4">No hay mensajes aún. ¡Escribe el primero!</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6 font-medium">No hay mensajes aún. ¡Escribe el primero para coordinar!</p>`;
                 return;
             }
             container.innerHTML = appt.messages.map(m => `
                 <div class="flex flex-col">
-                    <span class="text-[10px] font-bold text-gray-500">${m.sender}</span>
-                    <div class="bg-blue-50 border border-blue-100 text-gray-800 text-xs p-2.5 rounded-xl max-w-[85%] mt-0.5 shadow-sm">${m.text}</div>
+                    <span class="text-[10px] font-bold text-slate-400">${m.sender} <span class="text-[9px] font-normal">${m.time || ''}</span></span>
+                    <div class="bg-blue-600 text-white text-xs p-3 rounded-2xl max-w-[85%] mt-1 shadow-sm leading-relaxed">${m.text}</div>
                 </div>
             `).join('');
             container.scrollTop = container.scrollHeight;
@@ -474,30 +500,36 @@
         function openReviewModal(appointmentId, tutorId, tutorName) {
             document.getElementById('review-appointment-id').value = appointmentId;
             document.getElementById('review-tutor-id').value = tutorId;
-            document.getElementById('review-tutor-subtitle').innerText = `Calificando a ${tutorName}`;
+            document.getElementById('review-tutor-subtitle').innerText = `Calificando la asesoría con ${tutorName}`;
             document.getElementById('review-modal').classList.remove('hidden');
+            document.getElementById('review-modal').classList.add('flex');
         }
 
-        function closeReviewModal() { document.getElementById('review-modal').classList.add('hidden'); }
+        function closeReviewModal() { 
+            document.getElementById('review-modal').classList.add('hidden');
+            document.getElementById('review-modal').classList.remove('flex');
+        }
 
         function renderAppointments() {
             const container = document.getElementById('student-appointments');
             if (appointments.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No tienes tutorías agendadas por el momento.</p>`;
+                container.innerHTML = `<p class="text-slate-400 text-center py-8 text-sm font-medium">No tienes tutorías agendadas por el momento.</p>`;
                 return;
             }
-            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `
-                <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex justify-between items-center flex-wrap gap-2">
-                    <div>
-                        <span class="font-bold text-sm">${a.subject}</span>
-                        <span class="text-xs ml-2 px-2 py-0.5 rounded-full ${a.status === 'Confirmada' ? 'bg-green-100 text-green-800' : (a.status === 'Rechazada' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800')}">${a.status}</span>
-                        <div class="text-xs text-gray-600 mt-1">Tutor: ${a.tutorName} | ${a.date} a las ${a.time} (${a.modality})</div>
-                        ${a.review ? `<div class="text-xs text-amber-600 font-semibold mt-1"><i class="fa-solid fa-star"></i> Calificación: ${a.review.rating}/5 - "${a.review.comment}"</div>` : ''}
+            container.innerHTML = `<div class="space-y-4">${appointments.map(a => `
+                <div class="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/60 flex justify-between items-center flex-wrap gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-slate-900 text-sm">${a.subject}</span>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full font-bold ${a.status === 'Confirmada' ? 'bg-emerald-100 text-emerald-800' : (a.status === 'Rechazada' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800')}">${a.status}</span>
+                        </div>
+                        <div class="text-xs text-slate-500 font-medium">Tutor: <span class="text-slate-700 font-bold">${a.tutorName}</span> | 📅 ${a.date} a las ${a.time} (${a.modality})</div>
+                        ${a.review ? `<div class="text-xs text-amber-600 font-bold mt-1.5 flex items-center gap-1"><i class="fa-solid fa-star"></i> Calificación: ${a.review.rating}/5 - "${a.review.comment}"</div>` : ''}
                     </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="font-bold text-blue-900 text-sm">$${a.price}.00</span>
-                        <button onclick="openChatModal('${a.id}')" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Abrir Chat</button>
-                        ${a.status === 'Confirmada' && !a.review ? `<button onclick="openReviewModal('${a.id}', '${a.tutorId}', '${a.tutorName}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800">Calificar</button>` : ''}
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <span class="font-black text-blue-900 text-base">$${a.price}.00</span>
+                        <button onclick="openChatModal('${a.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-comments mr-1.5"></i> Chat</button>
+                        ${a.status === 'Confirmada' && !a.review ? `<button onclick="openReviewModal('${a.id}', '${a.tutorId}', '${a.tutorName}')" class="bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm">Calificar</button>` : ''}
                     </div>
                 </div>
             `).join('')}</div>`;
@@ -514,19 +546,24 @@
             document.getElementById('stat-earnings').innerText = `$${earnings}.00`;
 
             if (appointments.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No has recibido solicitudes de tutoría aún.</p>`;
+                container.innerHTML = `<p class="text-slate-400 text-center py-12 text-sm font-medium">No has recibido solicitudes de tutoría aún.</p>`;
                 return;
             }
-            container.innerHTML = `<div class="space-y-3">${appointments.map(a => `
-                <div class="p-4 rounded-xl border border-gray-200 bg-white flex justify-between items-center flex-wrap gap-2">
-                    <div>
-                        <span class="font-bold text-sm">${a.studentName}</span>
-                        <span class="text-xs bg-blue-100 text-blue-800 ml-2 px-2 py-0.5 rounded">${a.subject}</span>
-                        <div class="text-xs text-gray-600 mt-1">${a.date} @ ${a.time} - ${a.modality} (${a.location || 'Online'})</div>
+            container.innerHTML = `<div class="space-y-4">${appointments.map(a => `
+                <div class="p-5 rounded-2xl border border-slate-200/80 bg-white flex justify-between items-center flex-wrap gap-4 shadow-sm">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-slate-900 text-sm">${a.studentName}</span>
+                            <span class="text-xs bg-blue-50 text-blue-800 font-bold px-2.5 py-0.5 rounded-lg border border-blue-100">${a.subject}</span>
+                        </div>
+                        <div class="text-xs text-slate-500 font-medium">📅 ${a.date} a las ${a.time} - 🌐 ${a.modality} (${a.location || 'Online'})</div>
                     </div>
-                    <div class="flex gap-2 items-center flex-wrap">
-                        <button onclick="openChatModal('${a.id}')" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition"><i class="fa-solid fa-comments mr-1"></i> Chat</button>
-                        ${a.status === 'Pendiente' ? `<button onclick="updateAppointmentStatus('${a.id}', 'Confirmada')" class="bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Aceptar</button><button onclick="updateAppointmentStatus('${a.id}', 'Rechazada')" class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Rechazar</button>` : `<span class="text-xs font-bold px-3 py-1.5 rounded-lg ${a.status === 'Confirmada' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${a.status}</span>`}
+                    <div class="flex gap-2.5 items-center flex-wrap">
+                        <button onclick="openChatModal('${a.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-comments mr-1.5"></i> Chat</button>
+                        ${a.status === 'Pendiente' ? `
+                            <button onclick="updateAppointmentStatus('${a.id}', 'Confirmada')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm">Aceptar</button>
+                            <button onclick="updateAppointmentStatus('${a.id}', 'Rechazada')" class="bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm">Rechazar</button>
+                        ` : `<span class="text-xs font-extrabold px-4 py-2 rounded-xl ${a.status === 'Confirmada' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${a.status}</span>`}
                     </div>
                 </div>
             `).join('')}</div>`;
@@ -556,7 +593,6 @@
         let selectedRole = 'estudiante';
         let currentUser = null;
 
-        // Escuchar tutores en tiempo real
         onSnapshot(collection(db, "tutors"), (snapshot) => {
             const fetchedTutors = [];
             snapshot.forEach((docSnap) => {
@@ -573,7 +609,7 @@
                         reviews: data.reviews || 1,
                         modality: data.modality || "Presencial y Online",
                         days: data.days || "Consultar",
-                        hours: data.hours || "Horario a convenir",
+                        hours: data.hours || "Horario flexible",
                         image: data.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
                         bio: data.bio || "Tutor disponible."
                     });
@@ -604,7 +640,6 @@
             renderTutors();
         });
 
-        // Escuchar citas en tiempo real
         onSnapshot(collection(db, "appointments"), (snapshot) => {
             const fetchedAppointments = [];
             snapshot.forEach((docSnap) => {
@@ -674,7 +709,7 @@
                 await addDoc(collection(db, "appointments"), newAppointment);
                 closeBookingModal();
                 document.getElementById('booking-form').reset();
-                alert('¡Solicitud enviada con éxito! El tutor la verá en su panel.');
+                alert('¡Solicitud enviada con éxito! El tutor la verá en su panel de notificaciones.');
             } catch (error) {
                 console.error("Error al guardar la cita:", error);
                 alert("Hubo un error al registrar la cita.");
@@ -763,11 +798,11 @@
             const btnStudent = document.getElementById('role-student');
             const btnTutor = document.getElementById('role-tutor');
             if(role === 'estudiante') {
-                btnStudent.className = "py-3 px-4 rounded-xl border-2 font-medium text-sm transition border-blue-900 bg-blue-50 text-blue-900";
-                btnTutor.className = "py-3 px-4 rounded-xl border-2 font-medium text-sm transition border-slate-200 text-slate-600 hover:border-slate-300";
+                btnStudent.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-blue-900 bg-blue-50 text-blue-900 shadow-sm";
+                btnTutor.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-slate-200 text-slate-500 hover:border-slate-300";
             } else {
-                btnTutor.className = "py-3 px-4 rounded-xl border-2 font-medium text-sm transition border-blue-900 bg-blue-50 text-blue-900";
-                btnStudent.className = "py-3 px-4 rounded-xl border-2 font-medium text-sm transition border-slate-200 text-slate-600 hover:border-slate-300";
+                btnTutor.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-blue-900 bg-blue-50 text-blue-900 shadow-sm";
+                btnStudent.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-slate-200 text-slate-500 hover:border-slate-300";
             }
         }
 
@@ -787,7 +822,6 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 
-                // Verificar si existe en la colección contraria
                 const oppositeCollection = selectedRole === 'estudiante' ? 'tutors' : 'students';
                 const oppositeRef = doc(db, oppositeCollection, user.uid);
                 const oppositeSnap = await getDoc(oppositeRef);
@@ -824,7 +858,6 @@
             signOut(auth);
         }
 
-        // Control dinámico de vistas según el rol y sesión
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             const authContainer = document.getElementById('auth-container');
@@ -832,37 +865,35 @@
             const tutorView = document.getElementById('view-tutor');
 
             if (user) {
-                // Verificamos si es tutor consultando la colección 'tutors'
                 const tutorSnap = await getDoc(doc(db, "tutors", user.uid));
                 
                 if (tutorSnap.exists()) {
                     currentUserRole = 'tutor';
                     studentView.classList.add('hidden');
-                    tutorView.classList.remove('hidden'); // Muestra directo el panel de tutor
+                    tutorView.classList.remove('hidden');
                 } else {
                     currentUserRole = 'estudiante';
                     tutorView.classList.add('hidden');
-                    studentView.classList.remove('hidden'); // Muestra directo el catálogo de estudiantes
+                    studentView.classList.remove('hidden');
                 }
 
-                // Ocultamos el botón de iniciar sesión y mostramos perfil + salir
                 authContainer.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full border border-gray-300" alt="Perfil">
+                    <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+                        <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200" alt="Perfil">
                         <div class="hidden sm:block text-right">
-                            <span class="block text-xs font-semibold text-gray-700">${user.displayName}</span>
-                            <span class="block text-[10px] text-blue-600 uppercase font-bold">${currentUserRole}</span>
+                            <span class="block text-xs font-bold text-slate-800 leading-tight">${user.displayName}</span>
+                            <span class="block text-[10px] text-blue-600 uppercase font-extrabold tracking-wider">${currentUserRole}</span>
                         </div>
-                        <button onclick="logout()" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg transition ml-2">Cerrar Sesión</button>
+                        <button onclick="logout()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold px-3 py-1.5 rounded-xl transition ml-2">Salir</button>
                     </div>
                 `;
             } else {
                 currentUserRole = null;
                 tutorView.classList.add('hidden');
-                studentView.classList.remove('hidden'); // Invitados ven el catálogo general
+                studentView.classList.remove('hidden');
 
                 authContainer.innerHTML = `
-                    <button onclick="openAuthModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm flex items-center gap-2">
+                    <button onclick="openAuthModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-blue-900/10 flex items-center gap-2">
                         <i class="fa-brands fa-google"></i> Iniciar Sesión / Registrarse
                     </button>
                 `;
