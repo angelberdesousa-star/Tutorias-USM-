@@ -26,26 +26,16 @@
                 </div>
             </div>
 
-            <!-- Selector de Modos -->
-            <div class="flex bg-gray-100 p-1 rounded-xl text-sm font-medium">
-                <button id="btn-mode-student" onclick="switchMode('student')" class="px-4 py-2 rounded-lg bg-white shadow-sm text-blue-900 font-semibold transition">
-                    <i class="fa-solid fa-user-graduate mr-1"></i> Modo Estudiante
-                </button>
-                <button id="btn-mode-tutor" onclick="switchMode('tutor')" class="px-4 py-2 rounded-lg text-gray-600 hover:text-blue-900 transition">
-                    <i class="fa-solid fa-chalkboard-user mr-1"></i> Modo Tutor
-                </button>
-            </div>
-
-            <!-- Autenticación con Google / Firebase -->
+            <!-- Autenticación y Estado de Sesión -->
             <div id="auth-container" class="flex items-center space-x-3">
                 <button onclick="openAuthModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm flex items-center gap-2">
-                    <i class="fa-brands fa-google"></i> Iniciar Sesión
+                    <i class="fa-brands fa-google"></i> Iniciar Sesión / Registrarse
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MODO ESTUDIANTE -->
+    <!-- MODO ESTUDIANTE (Visible solo para estudiantes o invitados) -->
     <main id="view-student" class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
         <!-- Hero Banner -->
         <section class="gradient-bg text-white rounded-2xl p-6 md:p-8 mb-8 shadow-lg relative overflow-hidden">
@@ -88,25 +78,25 @@
             <div id="tutors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- Mis Citas Agendadas y Reseñas -->
-        <section class="mt-12">
+        <!-- Mis Citas Agendadas y Reseñas (Solo visible si es estudiante) -->
+        <section id="student-appointments-section" class="mt-12">
             <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
                 <i class="fa-solid fa-calendar-check text-blue-600 mr-2"></i> Mis Citas Agendadas y Calificaciones
             </h3>
             <div id="student-appointments" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4">
-                <p class="text-gray-500 text-center py-6 text-sm">No tienes tutorías agendadas por el momento.</p>
+                <p class="text-gray-500 text-center py-6 text-sm">Inicia sesión como estudiante para ver tus citas agendadas.</p>
             </div>
         </section>
     </main>
 
-    <!-- MODO TUTOR -->
+    <!-- MODO TUTOR (Visible solo si estás autenticado como Tutor) -->
     <main id="view-tutor" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
         <div class="flex border-b border-gray-200 mb-6">
             <button id="tab-requests" onclick="switchTutorTab('requests')" class="px-4 py-2 font-medium text-sm active-tab">
-                <i class="fa-solid fa-inbox mr-1"></i> Solicitudes Recibidas
+                <i class="fa-solid fa-inbox mr-1"></i> Solicitudes Recibidas y Agenda
             </button>
             <button id="tab-register" onclick="switchTutorTab('register')" class="px-4 py-2 font-medium text-sm text-gray-500 hover:text-gray-700">
-                <i class="fa-solid fa-user-plus mr-1"></i> Registrarse / Editar Perfil de Tutor
+                <i class="fa-solid fa-user-pen mr-1"></i> Editar Mi Perfil de Tutor
             </button>
         </div>
 
@@ -131,7 +121,7 @@
         </div>
 
         <div id="tutor-content-register" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-lg font-bold text-gray-800 mb-1">Únete como Tutor en FACES USM</h3>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">Actualiza tu Perfil de Tutor en FACES USM</h3>
             <form id="tutor-register-form" onsubmit="handleTutorRegister(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nombre Completo</label>
@@ -179,12 +169,12 @@
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Biografía</label>
                     <textarea id="reg-bio" rows="3" placeholder="Metodología..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-600"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-blue-800 transition shadow">Publicar Perfil</button>
+                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-blue-800 transition shadow">Guardar Cambios de Perfil</button>
             </form>
         </div>
     </main>
 
-    <!-- MODAL DE AGENDAMIENTO -->
+    <!-- MODAL DE AGENDAMIENTO (Solo para Estudiantes) -->
     <div id="booking-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
@@ -328,35 +318,17 @@
         <p>© 2026 Tutorías FACES - Universidad Santa María (Sede La Florencia)</p>
     </footer>
 
-    <!-- LOGICA DE INTERFAZ Y RENDERIZADO LOCAL -->
+    <!-- LOGICA DE INTERFAZ Y RENDERIZADO -->
     <script>
         let tutors = [];
         let appointments = [];
         let activeCategory = 'all';
+        let currentUserRole = null; // 'estudiante' o 'tutor'
 
         document.addEventListener("DOMContentLoaded", () => {
             const dateInput = document.getElementById('book-date');
             if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
         });
-
-        function switchMode(mode) {
-            const studentView = document.getElementById('view-student');
-            const tutorView = document.getElementById('view-tutor');
-            const btnStudent = document.getElementById('btn-mode-student');
-            const btnTutor = document.getElementById('btn-mode-tutor');
-
-            if (mode === 'student') {
-                studentView.classList.remove('hidden');
-                tutorView.classList.add('hidden');
-                btnStudent.className = "px-4 py-2 rounded-lg bg-white shadow-sm text-blue-900 font-semibold transition";
-                btnTutor.className = "px-4 py-2 rounded-lg text-gray-600 hover:text-blue-900 transition";
-            } else {
-                studentView.classList.add('hidden');
-                tutorView.classList.remove('hidden');
-                btnTutor.className = "px-4 py-2 rounded-lg bg-white shadow-sm text-blue-900 font-semibold transition";
-                btnStudent.className = "px-4 py-2 rounded-lg text-gray-600 hover:text-blue-900 transition";
-            }
-        }
 
         function switchTutorTab(tab) {
             const reqContent = document.getElementById('tutor-content-requests');
@@ -418,10 +390,14 @@
                             <p class="text-xs text-gray-600 line-clamp-3 leading-relaxed">${t.bio || 'Sin biografía disponible.'}</p>
                         </div>
                     </div>
+                    <!-- Si es tutor, no puede agendar citas; se muestra un aviso decorativo -->
                     <div class="p-4 bg-gray-50 border-t border-gray-100">
-                        <button onclick="openBookingModal('${t.id}')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center">
-                            <i class="fa-solid fa-calendar-plus mr-1.5"></i> Agendar Tutoría
-                        </button>
+                        ${currentUserRole === 'tutor' ? 
+                            `<span class="block text-center text-xs text-gray-400 font-medium py-2">Vista de Tutor (No disponible para agendar)</span>` : 
+                            `<button onclick="openBookingModal('${t.id}')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center">
+                                <i class="fa-solid fa-calendar-plus mr-1.5"></i> Agendar Tutoría
+                            </button>`
+                        }
                     </div>
                 </div>
             `).join('');
@@ -443,6 +419,10 @@
         }
 
         function openBookingModal(tutorId) {
+            if(currentUserRole === 'tutor') {
+                alert("Los tutores no pueden agendar tutorías con otros tutores.");
+                return;
+            }
             const tutor = tutors.find(t => String(t.id) === String(tutorId));
             if (!tutor) return;
             document.getElementById('modal-tutor-id').value = tutor.id;
@@ -534,7 +514,7 @@
             document.getElementById('stat-earnings').innerText = `$${earnings}.00`;
 
             if (appointments.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No has recibido solicitudes aún.</p>`;
+                container.innerHTML = `<p class="text-gray-500 text-center py-6 text-sm">No has recibido solicitudes de tutoría aún.</p>`;
                 return;
             }
             container.innerHTML = `<div class="space-y-3">${appointments.map(a => `
@@ -553,7 +533,7 @@
         }
     </script>
 
-    <!-- INTEGRADOR FIREBASE Y SINCRONIZACIÓN EN TIEMPO REAL -->
+    <!-- INTEGRADOR FIREBASE Y GESTIÓN DE ROLES -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -624,7 +604,7 @@
             renderTutors();
         });
 
-        // Escuchar citas / solicitudes en tiempo real desde Firestore
+        // Escuchar citas en tiempo real
         onSnapshot(collection(db, "appointments"), (snapshot) => {
             const fetchedAppointments = [];
             snapshot.forEach((docSnap) => {
@@ -648,25 +628,22 @@
                 });
             });
 
-            // Filtramos para mostrar según el usuario actual (si es tutor ve las suyas, si es estudiante ve las suyas)
             if (currentUser) {
                 appointments = fetchedAppointments.filter(a => 
                     a.studentEmail === currentUser.email || a.tutorUid === currentUser.uid
                 );
             } else {
-                appointments = fetchedAppointments;
+                appointments = [];
             }
 
             renderAppointments();
             renderTutorRequests();
         });
 
-        // Confirmar agendamiento y guardarlo en Firestore
         window.confirmBooking = async function(e) {
             e.preventDefault();
-            if (!currentUser) {
-                alert("Debes iniciar sesión con Google como estudiante para agendar.");
-                openAuthModal();
+            if (!currentUser || currentUserRole !== 'estudiante') {
+                alert("Debes iniciar sesión como estudiante para agendar una cita.");
                 return;
             }
 
@@ -697,25 +674,22 @@
                 await addDoc(collection(db, "appointments"), newAppointment);
                 closeBookingModal();
                 document.getElementById('booking-form').reset();
-                alert('¡Solicitud enviada con éxito! El tutor ya la puede ver en su panel.');
+                alert('¡Solicitud enviada con éxito! El tutor la verá en su panel.');
             } catch (error) {
                 console.error("Error al guardar la cita:", error);
-                alert("Hubo un error al registrar la cita en Firebase.");
+                alert("Hubo un error al registrar la cita.");
             }
         };
 
-        // Cambiar estado de la cita (Aceptar / Rechazar)
         window.updateAppointmentStatus = async function(id, newStatus) {
             try {
                 const apptRef = doc(db, "appointments", id);
                 await updateDoc(apptRef, { status: newStatus });
             } catch (error) {
                 console.error("Error al actualizar la cita:", error);
-                alert("No se pudo actualizar el estado de la cita.");
             }
         };
 
-        // Enviar mensaje de chat en tiempo real
         window.sendMessage = async function(e) {
             e.preventDefault();
             const appointmentId = document.getElementById('chat-appointment-id').value;
@@ -737,7 +711,6 @@
             }
         };
 
-        // Enviar reseña y calificación en Firebase
         window.submitReview = async function(e) {
             e.preventDefault();
             const appointmentId = document.getElementById('review-appointment-id').value;
@@ -751,17 +724,12 @@
                 alert('¡Gracias por dejar tu reseña!');
             } catch (error) {
                 console.error("Error al enviar reseña:", error);
-                alert("No se pudo guardar la reseña.");
             }
         };
 
         window.handleTutorRegister = async function(e) {
             e.preventDefault();
-            if (!currentUser) {
-                alert("Debes iniciar sesión con Google antes de publicar un perfil de tutor.");
-                openAuthModal();
-                return;
-            }
+            if (!currentUser) return;
 
             const tutorData = {
                 uid: currentUser.uid,
@@ -783,13 +751,10 @@
 
             try {
                 await setDoc(doc(db, "tutors", currentUser.uid), tutorData, { merge: true });
-                document.getElementById('tutor-register-form').reset();
-                alert('¡Tu perfil de tutor ha sido publicado exitosamente en Firebase!');
-                switchTutorTab('requests');
-                switchMode('student');
+                alert('¡Perfil de tutor actualizado con éxito!');
             } catch (error) {
-                console.error("Error al publicar el tutor:", error);
-                alert("Hubo un error al guardar tu perfil de tutor.");
+                console.error("Error al actualizar el tutor:", error);
+                alert("Hubo un error al guardar tu perfil.");
             }
         };
 
@@ -822,12 +787,13 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 
+                // Verificar si existe en la colección contraria
                 const oppositeCollection = selectedRole === 'estudiante' ? 'tutors' : 'students';
                 const oppositeRef = doc(db, oppositeCollection, user.uid);
                 const oppositeSnap = await getDoc(oppositeRef);
 
                 if (oppositeSnap.exists()) {
-                    alert(`Esta cuenta ya está registrada como ${selectedRole === 'estudiante' ? 'Tutor' : 'Estudiante'}. Debes cerrar sesión o usar otra cuenta para ingresar con este rol.`);
+                    alert(`Esta cuenta ya está registrada como ${selectedRole === 'estudiante' ? 'Tutor' : 'Estudiante'}. Debes cerrar sesión para ingresar con otro rol.`);
                     await signOut(auth);
                     closeAuthModal();
                     return;
@@ -850,7 +816,7 @@
                 closeAuthModal();
             } catch (error) {
                 console.error("Error en la autenticación:", error);
-                alert("Hubo un error al iniciar sesión con Google.");
+                alert("Hubo un error al iniciar sesión.");
             }
         }
 
@@ -858,24 +824,50 @@
             signOut(auth);
         }
 
-        onAuthStateChanged(auth, (user) => {
+        // Control dinámico de vistas según el rol y sesión
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             const authContainer = document.getElementById('auth-container');
+            const studentView = document.getElementById('view-student');
+            const tutorView = document.getElementById('view-tutor');
+
             if (user) {
+                // Verificamos si es tutor consultando la colección 'tutors'
+                const tutorSnap = await getDoc(doc(db, "tutors", user.uid));
+                
+                if (tutorSnap.exists()) {
+                    currentUserRole = 'tutor';
+                    studentView.classList.add('hidden');
+                    tutorView.classList.remove('hidden'); // Muestra directo el panel de tutor
+                } else {
+                    currentUserRole = 'estudiante';
+                    tutorView.classList.add('hidden');
+                    studentView.classList.remove('hidden'); // Muestra directo el catálogo de estudiantes
+                }
+
+                // Ocultamos el botón de iniciar sesión y mostramos perfil + salir
                 authContainer.innerHTML = `
                     <div class="flex items-center gap-3">
                         <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full border border-gray-300" alt="Perfil">
-                        <span class="text-xs font-semibold hidden sm:inline text-gray-700">${user.displayName}</span>
-                        <button onclick="logout()" class="text-xs text-red-600 hover:underline font-bold px-2 py-1">Salir</button>
+                        <div class="hidden sm:block text-right">
+                            <span class="block text-xs font-semibold text-gray-700">${user.displayName}</span>
+                            <span class="block text-[10px] text-blue-600 uppercase font-bold">${currentUserRole}</span>
+                        </div>
+                        <button onclick="logout()" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg transition ml-2">Cerrar Sesión</button>
                     </div>
                 `;
             } else {
+                currentUserRole = null;
+                tutorView.classList.add('hidden');
+                studentView.classList.remove('hidden'); // Invitados ven el catálogo general
+
                 authContainer.innerHTML = `
                     <button onclick="openAuthModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-sm flex items-center gap-2">
-                        <i class="fa-brands fa-google"></i> Iniciar Sesión
+                        <i class="fa-brands fa-google"></i> Iniciar Sesión / Registrarse
                     </button>
                 `;
             }
+            renderTutors();
         });
     </script>
 </body>
