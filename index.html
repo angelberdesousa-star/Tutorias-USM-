@@ -74,15 +74,11 @@
             </div>
         </section>
 
-        <!-- Filtros Rápidos de Materias -->
+        <!-- Filtros Rápidos de Materias (Dinámicos) -->
         <section class="mb-8 animate-fade-in">
             <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3">Categorías Académicas Destacadas</h3>
-            <div class="flex flex-wrap gap-2.5">
+            <div id="dynamic-categories" class="flex flex-wrap gap-2.5">
                 <button onclick="setCategoryFilter('all', event)" class="cat-btn active bg-blue-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-sm transition">Todas</button>
-                <button onclick="setCategoryFilter('Contabilidad II', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Contabilidad II</button>
-                <button onclick="setCategoryFilter('Matemática III', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Matemática III</button>
-                <button onclick="setCategoryFilter('Estadística I', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Estadística I</button>
-                <button onclick="setCategoryFilter('Finanzas', event)" class="cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm">Finanzas</button>
             </div>
         </section>
 
@@ -156,13 +152,20 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Asignatura Principal</label>
-                        <select required id="reg-subject" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
-                            <option value="Contabilidad II">Contabilidad II</option>
-                            <option value="Matemática III">Matemática III</option>
-                            <option value="Estadística I">Estadística I</option>
-                            <option value="Finanzas">Finanzas</option>
-                        </select>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Asignatura (Puedes escribir cualquier materia)</label>
+                        <input type="text" required id="reg-subject" list="subjects-list" placeholder="Ej. Contabilidad II o Econometría" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
+                        <datalist id="subjects-list">
+                            <option value="Contabilidad II">
+                            <option value="Matemática III">
+                            <option value="Estadística I">
+                            <option value="Finanzas">
+                            <option value="Microeconomía">
+                            <option value="Macroeconomía">
+                            <option value="Derecho Mercantil">
+                            <option value="Auditoría">
+                            <option value="Econometría">
+                            <option value="Investigación de Operaciones">
+                        </datalist>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Semestre / Carrera</label>
@@ -182,16 +185,33 @@
                         </select>
                     </div>
                 </div>
+
+                <!-- SELECTORES ESTRICTOS DE DÍA Y HORARIO -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Días Disponibles</label>
-                        <input type="text" required id="reg-days" placeholder="Ej. Lunes a Miércoles" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Día de Disponibilidad</label>
+                        <select required id="reg-days" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition cursor-pointer">
+                            <option value="">Selecciona un día...</option>
+                            <option value="Lunes">Lunes</option>
+                            <option value="Martes">Martes</option>
+                            <option value="Miércoles">Miércoles</option>
+                            <option value="Jueves">Jueves</option>
+                            <option value="Viernes">Viernes</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Horario (Franja)</label>
-                        <input type="text" required id="reg-hours" placeholder="Ej. 9:00 AM - 1:00 PM" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Desde las</label>
+                            <input type="time" required id="reg-time-start" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Hasta las</label>
+                            <input type="time" required id="reg-time-end" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
+                        </div>
                     </div>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Biografía o Metodología</label>
                     <textarea id="reg-bio" rows="3" placeholder="Explica tu experiencia..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition"></textarea>
@@ -424,6 +444,16 @@
             });
         }
 
+        // Formatea hora 24h ("14:30") a formato legible AM/PM ("2:30 PM")
+        function formatTimeAMPM(time24) {
+            if (!time24) return '';
+            const [hourStr, minute] = time24.split(':');
+            let hour = parseInt(hourStr, 10);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            hour = hour % 12 || 12;
+            return `${hour}:${minute} ${ampm}`;
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const dateInput = document.getElementById('book-date');
             if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
@@ -501,51 +531,73 @@
                 return;
             }
 
-            grid.innerHTML = filtered.map((t, index) => `
-                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group animate-fade-in" style="animation-delay: ${index * 0.08}s;">
-                    <div class="p-6">
-                        <div class="flex items-start justify-between mb-5">
-                            <div class="flex items-center space-x-3.5">
-                                <img src="${t.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}" alt="${t.name}" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md group-hover:scale-105 transition">
-                                <div>
-                                    <h4 class="font-extrabold text-slate-900 text-base leading-tight">${t.name}</h4>
-                                    <span class="text-xs font-medium text-slate-500">${t.semester || 'Tutor USM'}</span>
-                                    <div class="text-xs text-amber-500 font-extrabold mt-1 flex items-center gap-1"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} <span class="text-slate-400 font-medium">(${t.reviews || 1} reseñas)</span></div>
+            grid.innerHTML = filtered.map((t, index) => {
+                // Estrellas dinámicas: si no tiene reseñas, muestra estrellas en gris indicando que nadie lo ha calificado aún
+                const ratingDisplay = (t.reviews && t.reviews > 0)
+                    ? `<div class="text-xs text-amber-500 font-extrabold mt-1 flex items-center gap-1"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} <span class="text-slate-400 font-medium">(${t.reviews} ${t.reviews === 1 ? 'reseña' : 'reseñas'})</span></div>`
+                    : `<div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mt-1"><div class="flex text-slate-300 gap-0.5"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><span>Sin reseñas aún</span></div>`;
+
+                return `
+                    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group animate-fade-in" style="animation-delay: ${index * 0.08}s;">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between mb-5">
+                                <div class="flex items-center space-x-3.5">
+                                    <img src="${t.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}" alt="${t.name}" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md group-hover:scale-105 transition">
+                                    <div>
+                                        <h4 class="font-extrabold text-slate-900 text-base leading-tight">${t.name}</h4>
+                                        <span class="text-xs font-medium text-slate-500">${t.semester || 'Tutor USM'}</span>
+                                        ${ratingDisplay}
+                                    </div>
                                 </div>
+                                <span class="bg-blue-50 text-blue-900 font-black text-sm px-3 py-1.5 rounded-xl border border-blue-100">$${t.price || 10}/h</span>
                             </div>
-                            <span class="bg-blue-50 text-blue-900 font-black text-sm px-3 py-1.5 rounded-xl border border-blue-100">$${t.price || 10}/h</span>
+                            <div class="space-y-3">
+                                <span class="inline-block bg-blue-100/80 text-blue-900 text-xs font-bold px-3 py-1 rounded-xl">${t.subject}</span>
+                                <div class="text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 flex items-center gap-2">
+                                    <i class="fa-regular fa-clock"></i> <span>${t.days || 'Consultar'}: ${t.hours || 'Horario flexible'}</span>
+                                </div>
+                                <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">${t.bio || 'Sin biografía disponible.'}</p>
+                            </div>
                         </div>
-                        <div class="space-y-3">
-                            <span class="inline-block bg-blue-100/80 text-blue-900 text-xs font-bold px-3 py-1 rounded-xl">${t.subject}</span>
-                            <div class="text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 flex items-center gap-2">
-                                <i class="fa-regular fa-clock"></i> <span>${t.days || 'Consultar'}: ${t.hours || 'Horario flexible'}</span>
-                            </div>
-                            <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">${t.bio || 'Sin biografía disponible.'}</p>
+                        <div class="p-5 bg-slate-50/80 border-t border-slate-100">
+                            ${currentUserRole === 'tutor' ? 
+                                `<span class="block text-center text-xs text-slate-400 font-semibold py-2">Vista de Tutor (Solo lectura)</span>` : 
+                                `<button onclick="openBookingModal('${t.id}')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-blue-900/10 flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-calendar-plus"></i> Agendar Tutoría
+                                </button>`
+                            }
                         </div>
                     </div>
-                    <div class="p-5 bg-slate-50/80 border-t border-slate-100">
-                        ${currentUserRole === 'tutor' ? 
-                            `<span class="block text-center text-xs text-slate-400 font-semibold py-2">Vista de Tutor (Solo lectura)</span>` : 
-                            `<button onclick="openBookingModal('${t.id}')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md shadow-blue-900/10 flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-calendar-plus"></i> Agendar Tutoría
-                            </button>`
-                        }
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function filterTutors() { renderTutors(); }
 
+        // Renderizar dinámicamente los botones de categorías según las materias de los tutores
+        function renderDynamicCategories() {
+            const container = document.getElementById('dynamic-categories');
+            if (!container) return;
+
+            const subjects = [...new Set(tutors.map(t => t.subject).filter(Boolean))];
+
+            let html = `<button onclick="setCategoryFilter('all', event)" class="cat-btn ${activeCategory === 'all' ? 'active bg-blue-900 text-white' : 'bg-white border border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-900'} px-5 py-2 rounded-xl text-xs font-bold shadow-sm transition">Todas</button>`;
+
+            subjects.forEach(subj => {
+                const isActive = activeCategory === subj;
+                html += `<button onclick="setCategoryFilter('${subj}', event)" class="cat-btn ${isActive ? 'active bg-blue-900 text-white' : 'bg-white border border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-900'} px-5 py-2 rounded-xl text-xs font-bold shadow-sm transition">${subj}</button>`;
+            });
+
+            container.innerHTML = html;
+        }
+
         function setCategoryFilter(cat, e) {
             activeCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-900', 'text-white');
-                btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+                btn.className = "cat-btn bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-900 transition shadow-sm";
             });
-            if(e && e.target) {
-                e.target.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
-                e.target.classList.add('bg-blue-900', 'text-white');
+            if(e && e.currentTarget) {
+                e.currentTarget.className = "cat-btn active bg-blue-900 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-sm transition";
             }
             renderTutors();
         }
@@ -776,7 +828,7 @@
                         semester: data.semester || "FACES",
                         price: data.price || 10,
                         rating: data.rating || 5.0,
-                        reviews: data.reviews || 1,
+                        reviews: data.reviews || 0, // Inicia en 0 si no tiene reseñas
                         modality: data.modality || "Presencial y Online",
                         days: data.days || "Consultar",
                         hours: data.hours || "Horario flexible",
@@ -798,7 +850,7 @@
                         rating: 4.9,
                         reviews: 18,
                         modality: "Presencial y Online",
-                        days: "Lunes a Miércoles",
+                        days: "Lunes",
                         hours: "8:00 AM - 12:00 PM",
                         image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
                         bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo."
@@ -808,6 +860,7 @@
                 tutors = fetchedTutors;
             }
 
+            renderDynamicCategories();
             renderTutors();
             updateAdminUI();
         });
@@ -950,48 +1003,89 @@
             }
         };
 
+        // Lógica de calificación integrada con cálculo matemático automático del promedio y Firebase
         window.submitReview = async function(e) {
             e.preventDefault();
             const appointmentId = document.getElementById('review-appointment-id').value;
-            const rating = parseInt(document.getElementById('review-rating').value);
-            const comment = document.getElementById('review-comment').value;
+            const tutorId = document.getElementById('review-tutor-id').value;
+            const rating = parseInt(document.getElementById('review-rating').value, 10);
+            const comment = document.getElementById('review-comment').value.trim();
 
             try {
+                // 1. Guardar la reseña en la cita correspondiente
                 const apptRef = doc(db, "appointments", appointmentId);
                 await updateDoc(apptRef, { review: { rating, comment } });
+
+                // 2. Buscar al tutor en la base de datos local para recalcular su promedio aritmético
+                const tutor = tutors.find(t => String(t.id) === String(tutorId));
+                if (tutor) {
+                    const currentRating = tutor.rating || 5.0;
+                    const currentReviews = tutor.reviews || 0;
+                    
+                    const currentTotalScore = currentRating * currentReviews;
+                    const newReviewsCount = currentReviews + 1;
+                    const newRating = parseFloat(((currentTotalScore + rating) / newReviewsCount).toFixed(1));
+
+                    // 3. Actualizar el documento del tutor en Firebase Firestore
+                    const tutorRef = doc(db, "tutors", tutor.uid || tutorId);
+                    await updateDoc(tutorRef, {
+                        rating: newRating,
+                        reviews: newReviewsCount
+                    });
+
+                    alert(`¡Reseña enviada con éxito! El nuevo promedio de ${tutor.name} es ${newRating} ⭐ (${newReviewsCount} opiniones).`);
+                } else {
+                    alert('¡Gracias por dejar tu reseña!');
+                }
+
                 closeReviewModal();
-                alert('¡Gracias por dejar tu reseña!');
+                document.getElementById('review-comment').value = '';
             } catch (error) {
                 console.error("Error al enviar reseña:", error);
+                alert("Hubo un error al registrar la calificación.");
             }
         };
 
+        // Registro de Tutor con validación de horarios y materias libres
         window.handleTutorRegister = async function(e) {
             e.preventDefault();
             if (!currentUser) return;
 
             const nameInput = document.getElementById('reg-name').value;
-
             if (containsInappropriateName(nameInput)) {
                 alert("❌ El nombre ingresado contiene términos inapropiados o prohibidos. Por favor, utiliza tu nombre real.");
                 return;
             }
 
+            const timeStart = document.getElementById('reg-time-start').value;
+            const timeEnd = document.getElementById('reg-time-end').value;
+
+            // Validación estricta: la hora final debe ser posterior a la de inicio
+            if (timeStart >= timeEnd) {
+                alert("La hora de finalización ('Hasta las') debe ser posterior a la hora de inicio ('Desde las').");
+                return;
+            }
+
+            const day = document.getElementById('reg-days').value;
+            const formattedHours = `${formatTimeAMPM(timeStart)} - ${formatTimeAMPM(timeEnd)}`;
+
             const tutorData = {
                 uid: currentUser.uid,
                 name: nameInput,
-                subject: document.getElementById('reg-subject').value,
-                semester: document.getElementById('reg-semester').value,
+                subject: document.getElementById('reg-subject').value.trim(),
+                semester: document.getElementById('reg-semester').value.trim(),
                 price: parseFloat(document.getElementById('reg-price').value),
                 modality: document.getElementById('reg-modality').value,
-                days: document.getElementById('reg-days').value,
-                hours: document.getElementById('reg-hours').value,
-                bio: document.getElementById('reg-bio').value || "Estudiante de apoyo.",
+                days: day,
+                hours: formattedHours,
+                timeStart: timeStart,
+                timeEnd: timeEnd,
+                bio: document.getElementById('reg-bio').value.trim() || "Estudiante de apoyo.",
                 photo: currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
                 email: currentUser.email,
                 role: 'tutor',
                 rating: 5.0,
-                reviews: 1,
+                reviews: 0,
                 updatedAt: new Date().toISOString()
             };
 
@@ -1008,7 +1102,7 @@
                     updatedAt: new Date().toISOString()
                 }, { merge: true });
 
-                alert('¡Perfil de tutor actualizado con éxito y sincronizado!');
+                alert(`¡Perfil de tutor actualizado con éxito! Disponibilidad: ${day} de ${formattedHours}.`);
             } catch (error) {
                 console.error("Error al actualizar el tutor:", error);
                 alert("Hubo un error al guardar tu perfil.");
