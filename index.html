@@ -216,12 +216,21 @@
                         <span class="text-[10px] bg-slate-200 text-slate-700 font-bold px-2.5 py-0.5 rounded-full">En tiempo real</span>
                     </div>
 
+                    <!-- Input oculto para subir la foto personalizada al hacer clic en la imagen -->
+                    <input type="file" id="upload-avatar-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+
                     <!-- Tarjeta de Vista Previa -->
                     <div class="bg-white rounded-3xl border-2 border-blue-900/20 shadow-xl overflow-hidden flex flex-col justify-between">
                         <div class="p-6">
                             <div class="flex items-start justify-between mb-5">
                                 <div class="flex items-center space-x-3.5">
-                                    <img id="preview-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300" alt="Avatar" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md">
+                                    <!-- Contenedor de la foto con efecto al pasar el cursor y clic para cambiar -->
+                                    <div class="relative group cursor-pointer" onclick="triggerImageUpload()" title="Haz clic para cambiar tu foto de perfil">
+                                        <img id="preview-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300" alt="Avatar" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md group-hover:opacity-85 transition">
+                                        <div class="absolute inset-0 bg-slate-900/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                                            <i class="fa-solid fa-camera text-white text-sm"></i>
+                                        </div>
+                                    </div>
                                     <div>
                                         <h4 id="preview-name" class="font-extrabold text-slate-900 text-base leading-tight">Tu Nombre</h4>
                                         <span id="preview-semester" class="text-xs font-medium text-slate-500">Semestre / Carrera</span>
@@ -458,6 +467,7 @@
         let activeCategory = 'all';
         let currentUserRole = null;
         let activeChatUnsubscribe = null;
+        let currentCustomAvatar = ''; // Almacena la foto temporal seleccionada por el tutor
 
         const bannedWords = [
             "puta", "puto", "mierda", "coño", "marico", "marica", "idiota", "estupido", "estúpido", 
@@ -479,6 +489,29 @@
             if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
         });
 
+        // Simula clic en el input de archivo oculto al hacer clic sobre la foto de perfil
+        function triggerImageUpload() {
+            document.getElementById('upload-avatar-input').click();
+        }
+
+        // Lee la imagen seleccionada por el tutor y la convierte a Base64 para vista previa
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("La imagen es demasiado pesada. Por favor, selecciona una imagen menor a 2MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentCustomAvatar = e.target.result;
+                document.getElementById('preview-img').src = currentCustomAvatar;
+            };
+            reader.readAsDataURL(file);
+        }
+
         // Función para actualizar la tarjeta de vista previa en tiempo real
         function updateLivePreview() {
             const name = document.getElementById('reg-name').value.trim() || "Tu Nombre";
@@ -496,12 +529,15 @@
             document.getElementById('preview-schedule').innerText = `${days}: ${hours}`;
             document.getElementById('preview-bio').innerText = bio;
 
-            // Actualizar avatar inicial o foto de Google si está disponible
-            if(currentUser && currentUser.photoURL) {
-                document.getElementById('preview-img').src = currentUser.photoURL;
-            } else {
-                document.getElementById('preview-img').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e3a8a&color=fff`;
+            // Si el tutor ya seleccionó una foto personalizada, la mantiene. Si no, genera un avatar predeterminado con sus iniciales.
+            if (!currentCustomAvatar) {
+                if (currentUser && currentUser.photoURL) {
+                    currentCustomAvatar = currentUser.photoURL;
+                } else {
+                    currentCustomAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e3a8a&color=fff&bold=true`;
+                }
             }
+            document.getElementById('preview-img').src = currentCustomAvatar;
         }
 
         function promptAdminAccess() {
@@ -554,7 +590,7 @@
                 regContent.classList.remove('hidden');
                 tabReg.className = "px-6 py-3 font-bold text-sm active-tab transition flex items-center gap-2";
                 tabReq.className = "px-6 py-3 font-bold text-sm text-slate-400 hover:text-slate-700 transition flex items-center gap-2";
-                updateLivePreview(); // Rellenar la vista previa al abrir la pestaña
+                updateLivePreview();
             }
         }
 
@@ -583,12 +619,15 @@
                     ? `<div class="text-xs text-amber-500 font-extrabold mt-1 flex items-center gap-1"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} <span class="text-slate-400 font-medium">(${t.reviews} ${t.reviews === 1 ? 'reseña' : 'reseñas'})</span></div>`
                     : `<div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mt-1"><div class="flex text-slate-300 gap-0.5"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><span>Sin reseñas aún</span></div>`;
 
+                // Avatar predeterminado si no tiene foto personalizada
+                const tutorImg = t.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=1e3a8a&color=fff&bold=true`;
+
                 return `
                     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group animate-fade-in" style="animation-delay: ${index * 0.08}s;">
                         <div class="p-6">
                             <div class="flex items-start justify-between mb-5">
                                 <div class="flex items-center space-x-3.5">
-                                    <img src="${t.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}" alt="${t.name}" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md group-hover:scale-105 transition">
+                                    <img src="${tutorImg}" alt="${t.name}" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md group-hover:scale-105 transition">
                                     <div>
                                         <h4 class="font-extrabold text-slate-900 text-base leading-tight">${t.name}</h4>
                                         <span class="text-xs font-medium text-slate-500">${t.semester || 'Tutor USM'}</span>
@@ -658,7 +697,7 @@
             document.getElementById('modal-tutor-uid').value = tutor.uid || tutor.id;
             document.getElementById('modal-tutor-name').innerText = tutor.name;
             document.getElementById('modal-tutor-subject').innerText = tutor.subject;
-            document.getElementById('modal-tutor-img').src = tutor.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
+            document.getElementById('modal-tutor-img').src = tutor.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.name)}&background=1e3a8a&color=fff&bold=true`;
             document.getElementById('modal-tutor-availability').querySelector('span').innerText = `${tutor.days || 'Días a convenir'} (${tutor.hours || 'Horarios a convenir'})`;
             document.getElementById('modal-total-price').innerText = `$${tutor.price || 10}.00`;
             document.getElementById('booking-modal').classList.remove('hidden');
@@ -834,7 +873,7 @@
                 containerTutors.innerHTML = registeredTutorsList.map(t => `
                     <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <img src="${t.photo || 'https://via.placeholder.com/40'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
+                            <img src="${t.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=1e3a8a&color=fff&bold=true`}" class="w-9 h-9 rounded-xl object-cover border border-slate-200">
                             <div>
                                 <span class="font-bold text-xs text-slate-900 block leading-tight">${t.name || 'Tutor'}</span>
                                 <span class="text-[10px] text-slate-500 block">${t.email || 'Sin correo registrado'}</span>
@@ -877,7 +916,7 @@
                         modality: data.modality || "Presencial y Online",
                         days: data.days || "Lunes - Viernes",
                         hours: data.hours || "9am - 5pm",
-                        image: data.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+                        image: data.photo || "",
                         bio: data.bio || "Tutor disponible."
                     });
                 }
@@ -897,7 +936,7 @@
                         modality: "Presencial y Online",
                         days: "Lunes - Miércoles",
                         hours: "8:00 AM - 12:00 PM",
-                        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
+                        image: "",
                         bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo."
                     }
                 ];
@@ -1110,7 +1149,7 @@
                 days: daysInput,
                 hours: hoursInput,
                 bio: document.getElementById('reg-bio').value.trim() || "Estudiante de apoyo.",
-                photo: currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+                photo: currentCustomAvatar || "",
                 email: currentUser.email,
                 role: 'tutor',
                 rating: 5.0,
@@ -1125,13 +1164,13 @@
                     uid: currentUser.uid,
                     name: nameInput,
                     email: currentUser.email,
-                    photo: currentUser.photoURL,
+                    photo: currentCustomAvatar || currentUser.photoURL,
                     role: 'tutor',
                     subject: tutorData.subject,
                     updatedAt: new Date().toISOString()
                 }, { merge: true });
 
-                alert(`¡Perfil de tutor actualizado con éxito! Disponibilidad: ${daysInput} (${hoursInput}).`);
+                alert(`¡Perfil de tutor actualizado con éxito!`);
             } catch (error) {
                 console.error("Error al actualizar el tutor:", error);
                 alert("Hubo un error al guardar tu perfil.");
@@ -1228,7 +1267,6 @@
                     studentView.classList.add('hidden');
                     tutorView.classList.remove('hidden');
 
-                    // Cargar datos actuales del tutor en el formulario de edición y en la vista previa
                     const data = tutorSnap.data();
                     document.getElementById('reg-name').value = data.name || user.displayName || '';
                     document.getElementById('reg-subject').value = data.subject || '';
@@ -1239,19 +1277,20 @@
                     document.getElementById('reg-hours').value = data.hours || '';
                     document.getElementById('reg-bio').value = data.bio || '';
                     
+                    currentCustomAvatar = data.photo || user.photoURL || '';
                     updateLivePreview();
                 } else {
                     currentUserRole = 'estudiante';
                     tutorView.classList.add('hidden');
                     studentView.classList.remove('hidden');
-                    // Prellenar nombre si es nuevo registro de tutor
                     document.getElementById('reg-name').value = user.displayName || '';
+                    currentCustomAvatar = user.photoURL || '';
                     updateLivePreview();
                 }
 
                 authContainer.innerHTML = `
                     <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm animate-fade-in">
-                        <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200" alt="Perfil">
+                        <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'U')}&background=1e3a8a&color=fff&bold=true`}" class="w-9 h-9 rounded-xl object-cover border border-slate-200" alt="Perfil">
                         <div class="hidden sm:block text-right">
                             <span class="block text-xs font-bold text-slate-800 leading-tight">${user.displayName}</span>
                             <span class="block text-[10px] text-blue-600 uppercase font-extrabold tracking-wider">${currentUserRole}</span>
