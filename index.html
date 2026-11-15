@@ -74,7 +74,7 @@
             </div>
         </section>
 
-        <!-- Filtros Rápidos de Materias (Dinámicos) -->
+        <!-- Filtros Rápidos de Materias -->
         <section class="mb-8 animate-fade-in">
             <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3">Categorías Académicas Destacadas</h3>
             <div id="dynamic-categories" class="flex flex-wrap gap-2.5">
@@ -186,29 +186,15 @@
                     </div>
                 </div>
 
-                <!-- SELECTORES ESTRICTOS DE DÍA Y HORARIO -->
+                <!-- CAMPO LIBRE DE DÍAS (PERMITE RANGOS COMO 'Lunes - Jueves') Y HORARIOS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Día de Disponibilidad</label>
-                        <select required id="reg-days" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition cursor-pointer">
-                            <option value="">Selecciona un día...</option>
-                            <option value="Lunes">Lunes</option>
-                            <option value="Martes">Martes</option>
-                            <option value="Miércoles">Miércoles</option>
-                            <option value="Jueves">Jueves</option>
-                            <option value="Viernes">Viernes</option>
-                            <option value="Sábado">Sábado</option>
-                        </select>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Días Disponibles (Rango)</label>
+                        <input type="text" required id="reg-days" placeholder="Ej. Lunes - Jueves o Lunes a Viernes" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Desde las</label>
-                            <input type="time" required id="reg-time-start" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Hasta las</label>
-                            <input type="time" required id="reg-time-end" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
-                        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Franja Horaria</label>
+                        <input type="text" required id="reg-hours" placeholder="Ej. 9am - 5pm" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-blue-600 focus:bg-white transition">
                     </div>
                 </div>
 
@@ -428,7 +414,6 @@
         let currentUserRole = null;
         let activeChatUnsubscribe = null;
 
-        // Lista negra de palabras prohibidas o inapropiadas para nombres
         const bannedWords = [
             "puta", "puto", "mierda", "coño", "marico", "marica", "idiota", "estupido", "estúpido", 
             "imbecil", "imbécil", "cabron", "cabrón", "pendejo", "verga", "verco", "puvto", "put0",
@@ -442,16 +427,6 @@
                 const regex = new RegExp(`\\b${word}\\b`, 'i');
                 return regex.test(lowerName) || lowerName.includes(word);
             });
-        }
-
-        // Formatea hora 24h ("14:30") a formato legible AM/PM ("2:30 PM")
-        function formatTimeAMPM(time24) {
-            if (!time24) return '';
-            const [hourStr, minute] = time24.split(':');
-            let hour = parseInt(hourStr, 10);
-            const ampm = hour >= 12 ? 'PM' : 'AM';
-            hour = hour % 12 || 12;
-            return `${hour}:${minute} ${ampm}`;
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -532,8 +507,9 @@
             }
 
             grid.innerHTML = filtered.map((t, index) => {
-                // Estrellas dinámicas: si no tiene reseñas, muestra estrellas en gris indicando que nadie lo ha calificado aún
-                const ratingDisplay = (t.reviews && t.reviews > 0)
+                // CORRECCIÓN: Si el tutor tiene 0 reseñas, se muestran estrellas grises y texto "Sin reseñas aún"
+                const hasReviews = t.reviews && t.reviews > 0;
+                const ratingDisplay = hasReviews
                     ? `<div class="text-xs text-amber-500 font-extrabold mt-1 flex items-center gap-1"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} <span class="text-slate-400 font-medium">(${t.reviews} ${t.reviews === 1 ? 'reseña' : 'reseñas'})</span></div>`
                     : `<div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mt-1"><div class="flex text-slate-300 gap-0.5"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><span>Sin reseñas aún</span></div>`;
 
@@ -574,7 +550,6 @@
 
         function filterTutors() { renderTutors(); }
 
-        // Renderizar dinámicamente los botones de categorías según las materias de los tutores
         function renderDynamicCategories() {
             const container = document.getElementById('dynamic-categories');
             if (!container) return;
@@ -828,10 +803,10 @@
                         semester: data.semester || "FACES",
                         price: data.price || 10,
                         rating: data.rating || 5.0,
-                        reviews: data.reviews || 0, // Inicia en 0 si no tiene reseñas
+                        reviews: data.reviews !== undefined ? data.reviews : 0, // CORRECCIÓN: Si no tiene reseñas guardadas, inicia en 0
                         modality: data.modality || "Presencial y Online",
-                        days: data.days || "Consultar",
-                        hours: data.hours || "Horario flexible",
+                        days: data.days || "Lunes - Viernes",
+                        hours: data.hours || "9am - 5pm",
                         image: data.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
                         bio: data.bio || "Tutor disponible."
                     });
@@ -847,10 +822,10 @@
                         subject: "Contabilidad II",
                         semester: "7mo Semestre - Contaduría",
                         price: 12,
-                        rating: 4.9,
-                        reviews: 18,
+                        rating: 5.0,
+                        reviews: 0, // Inicia en 0 para que aparezca en gris
                         modality: "Presencial y Online",
-                        days: "Lunes",
+                        days: "Lunes - Miércoles",
                         hours: "8:00 AM - 12:00 PM",
                         image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
                         bio: "Especialista en Estados Financieros, Asientos de Ajuste y Hoja de Trabajo."
@@ -1012,11 +987,9 @@
             const comment = document.getElementById('review-comment').value.trim();
 
             try {
-                // 1. Guardar la reseña en la cita correspondiente
                 const apptRef = doc(db, "appointments", appointmentId);
                 await updateDoc(apptRef, { review: { rating, comment } });
 
-                // 2. Buscar al tutor en la base de datos local para recalcular su promedio aritmético
                 const tutor = tutors.find(t => String(t.id) === String(tutorId));
                 if (tutor) {
                     const currentRating = tutor.rating || 5.0;
@@ -1026,7 +999,6 @@
                     const newReviewsCount = currentReviews + 1;
                     const newRating = parseFloat(((currentTotalScore + rating) / newReviewsCount).toFixed(1));
 
-                    // 3. Actualizar el documento del tutor en Firebase Firestore
                     const tutorRef = doc(db, "tutors", tutor.uid || tutorId);
                     await updateDoc(tutorRef, {
                         rating: newRating,
@@ -1046,7 +1018,7 @@
             }
         };
 
-        // Registro de Tutor con validación de horarios y materias libres
+        // Registro de Tutor corregido: campo de días libre para rangos (ej. "Lunes - Viernes")
         window.handleTutorRegister = async function(e) {
             e.preventDefault();
             if (!currentUser) return;
@@ -1057,17 +1029,8 @@
                 return;
             }
 
-            const timeStart = document.getElementById('reg-time-start').value;
-            const timeEnd = document.getElementById('reg-time-end').value;
-
-            // Validación estricta: la hora final debe ser posterior a la de inicio
-            if (timeStart >= timeEnd) {
-                alert("La hora de finalización ('Hasta las') debe ser posterior a la hora de inicio ('Desde las').");
-                return;
-            }
-
-            const day = document.getElementById('reg-days').value;
-            const formattedHours = `${formatTimeAMPM(timeStart)} - ${formatTimeAMPM(timeEnd)}`;
+            const daysInput = document.getElementById('reg-days').value.trim();
+            const hoursInput = document.getElementById('reg-hours').value.trim();
 
             const tutorData = {
                 uid: currentUser.uid,
@@ -1076,16 +1039,14 @@
                 semester: document.getElementById('reg-semester').value.trim(),
                 price: parseFloat(document.getElementById('reg-price').value),
                 modality: document.getElementById('reg-modality').value,
-                days: day,
-                hours: formattedHours,
-                timeStart: timeStart,
-                timeEnd: timeEnd,
+                days: daysInput,
+                hours: hoursInput,
                 bio: document.getElementById('reg-bio').value.trim() || "Estudiante de apoyo.",
                 photo: currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
                 email: currentUser.email,
                 role: 'tutor',
                 rating: 5.0,
-                reviews: 0,
+                reviews: 0, // Se inicializa en 0 para que aparezca en gris si no tiene reseñas
                 updatedAt: new Date().toISOString()
             };
 
@@ -1102,7 +1063,7 @@
                     updatedAt: new Date().toISOString()
                 }, { merge: true });
 
-                alert(`¡Perfil de tutor actualizado con éxito! Disponibilidad: ${day} de ${formattedHours}.`);
+                alert(`¡Perfil de tutor actualizado con éxito! Disponibilidad: ${daysInput} (${hoursInput}).`);
             } catch (error) {
                 console.error("Error al actualizar el tutor:", error);
                 alert("Hubo un error al guardar tu perfil.");
@@ -1117,8 +1078,8 @@
                 btnStudent.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-blue-900 bg-blue-50 text-blue-900 shadow-sm";
                 btnTutor.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-slate-200 text-slate-500 hover:border-slate-300";
             } else {
-                btnTutor.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-blue-900 bg-blue-50 text-blue-900 shadow-sm";
-                btnStudent.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-slate-200 text-slate-500 hover:border-slate-300";
+                tutorBtn.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-blue-900 bg-blue-50 text-blue-900 shadow-sm";
+                studentBtn.className = "py-4 px-4 rounded-2xl border-2 font-extrabold text-sm transition border-slate-200 text-slate-500 hover:border-slate-300";
             }
         }
 
