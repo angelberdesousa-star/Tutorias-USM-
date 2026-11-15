@@ -224,7 +224,6 @@
                         <div class="p-6">
                             <div class="flex items-start justify-between mb-5">
                                 <div class="flex items-center space-x-3.5">
-                                    <!-- Contenedor de la foto con efecto al pasar el cursor y clic para cambiar -->
                                     <div class="relative group cursor-pointer" onclick="triggerImageUpload()" title="Haz clic para cambiar tu foto de perfil">
                                         <img id="preview-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300" alt="Avatar" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-900 shadow-md group-hover:opacity-85 transition">
                                         <div class="absolute inset-0 bg-slate-900/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
@@ -234,7 +233,7 @@
                                     <div>
                                         <h4 id="preview-name" class="font-extrabold text-slate-900 text-base leading-tight">Tu Nombre</h4>
                                         <span id="preview-semester" class="text-xs font-medium text-slate-500">Semestre / Carrera</span>
-                                        <div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mt-1">
+                                        <div id="preview-rating-container" class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mt-1">
                                             <div class="flex text-slate-300 gap-0.5"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
                                             <span>Sin reseñas aún</span>
                                         </div>
@@ -249,6 +248,15 @@
                                 </div>
                                 <p id="preview-bio" class="text-xs text-slate-600 line-clamp-3 leading-relaxed">Aquí aparecerá tu biografía o metodología de enseñanza explicada para los alumnos...</p>
                             </div>
+
+                            <!-- SECCIÓN NUEVA: Historial de reseñas visibles para el tutor en su vista previa -->
+                            <div class="mt-5 pt-4 border-t border-slate-100">
+                                <span class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block mb-2.5"><i class="fa-solid fa-comments mr-1"></i> Opiniones de Estudiantes (<span id="preview-reviews-count">0</span>)</span>
+                                <div id="preview-reviews-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                                    <p class="text-xs text-slate-400 italic">Aún no hay reseñas registradas.</p>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="p-5 bg-slate-50/80 border-t border-slate-100">
                             <button disabled class="w-full bg-slate-200 text-slate-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 cursor-not-allowed">
@@ -468,6 +476,7 @@
         let currentUserRole = null;
         let activeChatUnsubscribe = null;
         let currentCustomAvatar = '';
+        let myTutorReviews = []; // Almacena las reseñas del tutor actual
 
         const bannedWords = [
             "puta", "puto", "mierda", "coño", "marico", "marica", "idiota", "estupido", "estúpido", 
@@ -493,7 +502,6 @@
             document.getElementById('upload-avatar-input').click();
         }
 
-        // NUEVO: Comprime la imagen en un canvas HTML5 para asegurar que pese menos de 100KB y quepa en Firestore
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -525,7 +533,6 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Convertir a JPEG comprimido con calidad 0.8
                     currentCustomAvatar = canvas.toDataURL('image/jpeg', 0.8);
                     document.getElementById('preview-img').src = currentCustomAvatar;
                 };
@@ -558,6 +565,42 @@
                 }
             }
             document.getElementById('preview-img').src = currentCustomAvatar;
+
+            // Actualizar la lista de opiniones en la vista previa del tutor
+            renderPreviewReviews();
+        }
+
+        function renderPreviewReviews() {
+            const container = document.getElementById('preview-reviews-list');
+            const countBadge = document.getElementById('preview-reviews-count');
+            const ratingContainer = document.getElementById('preview-rating-container');
+
+            countBadge.innerText = myTutorReviews.length;
+
+            if (myTutorReviews.length === 0) {
+                ratingContainer.innerHTML = `<div class="flex text-slate-300 gap-0.5"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><span>Sin reseñas aún</span>`;
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">Aún no hay reseñas registradas.</p>`;
+                return;
+            }
+
+            const totalScore = myTutorReviews.reduce((acc, r) => acc + r.rating, 0);
+            const avgRating = (totalScore / myTutorReviews.length).toFixed(1);
+
+            ratingContainer.innerHTML = `
+                <div class="text-amber-500 font-extrabold flex items-center gap-1">
+                    <i class="fa-solid fa-star"></i> ${avgRating} <span class="text-slate-400 font-medium">(${myTutorReviews.length} ${myTutorReviews.length === 1 ? 'opinión' : 'opiniones'})</span>
+                </div>
+            `;
+
+            container.innerHTML = myTutorReviews.map(r => `
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-extrabold text-slate-800">${r.studentName || 'Estudiante'}</span>
+                        <span class="text-amber-500 font-bold">${'⭐'.repeat(r.rating)}</span>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed">"${r.comment}"</p>
+                </div>
+            `).join('');
         }
 
         function promptAdminAccess() {
@@ -641,6 +684,23 @@
 
                 const tutorImg = t.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=1e3a8a&color=fff&bold=true`;
 
+                // Renderizar también las reseñas debajo en la tarjeta pública si existen
+                const tutorReviewsList = t.reviewsList || [];
+                const reviewsHtml = tutorReviewsList.length > 0 ? `
+                    <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
+                        <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Últimas opiniones</span>
+                        ${tutorReviewsList.slice(0, 2).map(r => `
+                            <div class="bg-slate-50 p-2.5 rounded-xl text-xs space-y-0.5">
+                                <div class="flex justify-between font-bold text-slate-700">
+                                    <span>${r.studentName}</span>
+                                    <span class="text-amber-500">${'⭐'.repeat(r.rating)}</span>
+                                </div>
+                                <p class="text-slate-500 italic">"${r.comment}"</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '';
+
                 return `
                     <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group animate-fade-in" style="animation-delay: ${index * 0.08}s;">
                         <div class="p-6">
@@ -661,6 +721,7 @@
                                     <i class="fa-regular fa-clock"></i> <span>${t.days || 'Consultar'}: ${t.hours || 'Horario flexible'}</span>
                                 </div>
                                 <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">${t.bio || 'Sin biografía disponible.'}</p>
+                                ${reviewsHtml}
                             </div>
                         </div>
                         <div class="p-5 bg-slate-50/80 border-t border-slate-100">
@@ -932,6 +993,7 @@
                         price: data.price || 10,
                         rating: data.rating || 5.0,
                         reviews: data.reviews !== undefined ? data.reviews : 0,
+                        reviewsList: data.reviewsList || [],
                         modality: data.modality || "Presencial y Online",
                         days: data.days || "Lunes - Viernes",
                         hours: data.hours || "9am - 5pm",
@@ -952,6 +1014,7 @@
                         price: 12,
                         rating: 5.0,
                         reviews: 0,
+                        reviewsList: [],
                         modality: "Presencial y Online",
                         days: "Lunes - Miércoles",
                         hours: "8:00 AM - 12:00 PM",
@@ -961,6 +1024,15 @@
                 ];
             } else {
                 tutors = fetchedTutors;
+            }
+
+            // Si el usuario actual es tutor, actualiza sus reseñas locales para la vista previa
+            if (currentUser && currentUserRole === 'tutor') {
+                const myTutorRecord = tutors.find(t => t.uid === currentUser.uid || t.id === currentUser.uid);
+                if (myTutorRecord) {
+                    myTutorReviews = myTutorRecord.reviewsList || [];
+                    renderPreviewReviews();
+                }
             }
 
             renderDynamicCategories();
@@ -1115,21 +1187,32 @@
 
             try {
                 const apptRef = doc(db, "appointments", appointmentId);
-                await updateDoc(apptRef, { review: { rating, comment } });
+                await updateDoc(apptRef, { review: { rating, comment, studentName: currentUser.displayName } });
 
-                const tutor = tutors.find(t => String(t.id) === String(tutorId));
+                const tutor = tutors.find(t => String(t.id) === String(tutorId) || String(t.uid) === String(tutorId));
                 if (tutor) {
                     const currentRating = tutor.rating || 5.0;
                     const currentReviews = tutor.reviews || 0;
+                    const currentReviewsList = tutor.reviewsList || [];
                     
                     const currentTotalScore = currentRating * currentReviews;
                     const newReviewsCount = currentReviews + 1;
                     const newRating = parseFloat(((currentTotalScore + rating) / newReviewsCount).toFixed(1));
 
+                    const newReviewItem = {
+                        studentName: currentUser.displayName || 'Estudiante USM',
+                        rating: rating,
+                        comment: comment,
+                        date: new Date().toLocaleDateString()
+                    };
+
+                    const updatedReviewsList = [newReviewItem, ...currentReviewsList];
+
                     const tutorRef = doc(db, "tutors", tutor.uid || tutorId);
                     await updateDoc(tutorRef, {
                         rating: newRating,
-                        reviews: newReviewsCount
+                        reviews: newReviewsCount,
+                        reviewsList: updatedReviewsList
                     });
 
                     alert(`¡Reseña enviada con éxito! El nuevo promedio de ${tutor.name} es ${newRating} ⭐ (${newReviewsCount} opiniones).`);
@@ -1158,6 +1241,19 @@
             const daysInput = document.getElementById('reg-days').value.trim();
             const hoursInput = document.getElementById('reg-hours').value.trim();
 
+            const tutorDocRef = doc(db, "tutors", currentUser.uid);
+            const existingSnap = await getDoc(tutorDocRef);
+            let existingReviewsList = [];
+            let existingRating = 5.0;
+            let existingReviewsCount = 0;
+
+            if (existingSnap.exists()) {
+                const data = existingSnap.data();
+                existingReviewsList = data.reviewsList || [];
+                existingRating = data.rating || 5.0;
+                existingReviewsCount = data.reviews || 0;
+            }
+
             const tutorData = {
                 uid: currentUser.uid,
                 name: nameInput,
@@ -1171,8 +1267,9 @@
                 photo: currentCustomAvatar || "",
                 email: currentUser.email,
                 role: 'tutor',
-                rating: 5.0,
-                reviews: 0,
+                rating: existingRating,
+                reviews: existingReviewsCount,
+                reviewsList: existingReviewsList,
                 updatedAt: new Date().toISOString()
             };
 
@@ -1296,6 +1393,7 @@
                     document.getElementById('reg-hours').value = data.hours || '';
                     document.getElementById('reg-bio').value = data.bio || '';
                     
+                    myTutorReviews = data.reviewsList || [];
                     currentCustomAvatar = data.photo || user.photoURL || '';
                     updateLivePreview();
                 } else {
