@@ -216,7 +216,7 @@
                         <span class="text-[10px] bg-slate-200 text-slate-700 font-bold px-2.5 py-0.5 rounded-full">En tiempo real</span>
                     </div>
 
-                    <!-- Input oculto para subir la foto personalizada al hacer clic en la imagen -->
+                    <!-- Input oculto para subir y comprimir la foto -->
                     <input type="file" id="upload-avatar-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
 
                     <!-- Tarjeta de Vista Previa -->
@@ -467,7 +467,7 @@
         let activeCategory = 'all';
         let currentUserRole = null;
         let activeChatUnsubscribe = null;
-        let currentCustomAvatar = ''; // Almacena la foto temporal seleccionada por el tutor
+        let currentCustomAvatar = '';
 
         const bannedWords = [
             "puta", "puto", "mierda", "coño", "marico", "marica", "idiota", "estupido", "estúpido", 
@@ -489,30 +489,51 @@
             if(dateInput) dateInput.min = new Date().toISOString().split('T')[0];
         });
 
-        // Simula clic en el input de archivo oculto al hacer clic sobre la foto de perfil
         function triggerImageUpload() {
             document.getElementById('upload-avatar-input').click();
         }
 
-        // Lee la imagen seleccionada por el tutor y la convierte a Base64 para vista previa
+        // NUEVO: Comprime la imagen en un canvas HTML5 para asegurar que pese menos de 100KB y quepa en Firestore
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            if (file.size > 2 * 1024 * 1024) {
-                alert("La imagen es demasiado pesada. Por favor, selecciona una imagen menor a 2MB.");
-                return;
-            }
-
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentCustomAvatar = e.target.result;
-                document.getElementById('preview-img').src = currentCustomAvatar;
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 250;
+                    const MAX_HEIGHT = 250;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convertir a JPEG comprimido con calidad 0.8
+                    currentCustomAvatar = canvas.toDataURL('image/jpeg', 0.8);
+                    document.getElementById('preview-img').src = currentCustomAvatar;
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        // Función para actualizar la tarjeta de vista previa en tiempo real
         function updateLivePreview() {
             const name = document.getElementById('reg-name').value.trim() || "Tu Nombre";
             const subject = document.getElementById('reg-subject').value.trim() || "Asignatura";
@@ -529,7 +550,6 @@
             document.getElementById('preview-schedule').innerText = `${days}: ${hours}`;
             document.getElementById('preview-bio').innerText = bio;
 
-            // Si el tutor ya seleccionó una foto personalizada, la mantiene. Si no, genera un avatar predeterminado con sus iniciales.
             if (!currentCustomAvatar) {
                 if (currentUser && currentUser.photoURL) {
                     currentCustomAvatar = currentUser.photoURL;
@@ -619,7 +639,6 @@
                     ? `<div class="text-xs text-amber-500 font-extrabold mt-1 flex items-center gap-1"><i class="fa-solid fa-star"></i> ${t.rating || 5.0} <span class="text-slate-400 font-medium">(${t.reviews} ${t.reviews === 1 ? 'reseña' : 'reseñas'})</span></div>`
                     : `<div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mt-1"><div class="flex text-slate-300 gap-0.5"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div><span>Sin reseñas aún</span></div>`;
 
-                // Avatar predeterminado si no tiene foto personalizada
                 const tutorImg = t.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=1e3a8a&color=fff&bold=true`;
 
                 return `
